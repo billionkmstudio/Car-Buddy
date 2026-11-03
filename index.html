@@ -46,9 +46,7 @@ header { display: flex; align-items: baseline; justify-content: space-between; g
 .brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; min-width: 0; }
 .brand .logo {
   font-family: "Saira Extra Condensed", "Aquarius", "Arial Narrow", Impact, sans-serif; font-weight: 800; font-size: 2.3rem; line-height: 1; letter-spacing: .02em;
-  background: linear-gradient(100deg, #10206e 0%, #1f3a8a 30%, #3b4252 70%, #3a3d42 100%), #eef1f4;
-  -webkit-background-clip: text, padding-box; background-clip: text, padding-box; color: transparent; -webkit-text-fill-color: transparent;
-  padding: 4px 12px 2px; border-radius: 10px;
+  color: #d3d9de;
 }
 .brand small { font-family: var(--f-body); letter-spacing: .06em; font-weight: 500; color: var(--muted); font-size: .85rem; text-transform: none; }
 .fnav { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 8px; }
@@ -339,7 +337,7 @@ footer .ver a { color: var(--accent); }
       <a href="report.html" target="_blank" rel="noopener">駕駛偵測報告</a>
       <a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>
     </nav>
-    <p class="ver">v1.4.1 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+    <p class="ver">v1.4.2 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
   </footer>
 </div>
 <noscript>呢個頁面需要 JavaScript。</noscript>
@@ -355,7 +353,7 @@ const $ = (id) => document.getElementById(id);
 const video = $("video"), overlay = $("overlay"), octx = overlay.getContext("2d");
 
 /* ---------- settings ---------- */
-// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
+// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
 const CFG_KEY = "carbuddy.v2";
 const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false };
 let cfg = { ...defaults };
