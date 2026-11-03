@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0e1113">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Car Buddy">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>Car Buddy 疲勞守護</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -290,6 +297,7 @@ footer .ver a { color: var(--accent); }
         <label class="check"><input id="voice" type="checkbox">警報時加語音提示</label>
         <label class="check"><input id="preview" type="checkbox">顯示鏡頭畫面（隱藏後仍然會繼續偵測）</label>
         <label class="check"><input id="autoHide" type="checkbox">校準完成後自動隱藏鏡頭畫面</label>
+        <label class="check"><input id="fs" type="checkbox">開網頁後第一次點擊就自動全螢幕（iPhone 要用「加入主畫面」，見使用說明）</label>
         <label class="check"><input id="music" type="checkbox">警報第 2 次起自動播歌「前面有站」</label>
         <div class="row">
           <label for="musicVol">音樂音量</label><output id="oMusicVol">90%</output>
@@ -318,6 +326,15 @@ footer .ver a { color: var(--accent); }
           <label for="model">模型名稱（留空用預設）</label>
           <input id="model" class="txt" type="text" autocomplete="off" autocapitalize="none" spellcheck="false">
         </div>
+        <div class="field">
+          <label for="stt">聽你講嘢嘅方式</label>
+          <select id="stt">
+            <option value="auto">自動（用 Groq 時走 Groq 雲端辨識，否則用瀏覽器）</option>
+            <option value="whisper">Groq 雲端辨識（Whisper，Android／iPhone 都較穩）</option>
+            <option value="browser">瀏覽器內置辨識</option>
+          </select>
+          <p class="hint">雲端辨識會將你講嘢嗰幾秒錄音傳去 Groq 轉成文字，用完即棄，唔會儲存喺本程式。需要填咗 Groq API key。</p>
+        </div>
         <div class="field" id="endpointRow" hidden>
           <label for="endpoint">API 網址（chat/completions）</label>
           <input id="endpoint" class="txt" type="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="https://.../v1/chat/completions">
@@ -331,14 +348,14 @@ footer .ver a { color: var(--accent); }
   <footer>
     <p>呢個係輔助提示，唔可以代替休息。覺得疲倦就要停車休息。</p>
     <p>手機要固定穩陣先開始，行車時唔好操作螢幕。鏡頭畫面只喺手機入面處理，唔會上傳。</p>
-    <p>開啟 Buddy 傾偈後，你講嘅說話文字會傳送畀你揀嘅 AI 供應商；語音辨識由瀏覽器提供，可能經 Google 伺服器處理。</p>
+    <p>開啟 Buddy 傾偈後，你講嘅說話文字會傳送畀你揀嘅 AI 供應商；講嘢嗰幾秒嘅錄音會傳去 Groq（用 Groq 辨識時）或由瀏覽器語音服務處理；鏡頭畫面永遠唔會傳出去。</p>
     <p><a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>：你嘅樣貌只喺你部手機處理，唔會上傳或儲存喺任何伺服器。</p>
     <nav class="fnav" aria-label="說明頁面" title="呢啲頁面會喺新分頁打開，請喺停車後先睇">
       <a href="guide.html" target="_blank" rel="noopener">使用說明</a>
       <a href="report.html" target="_blank" rel="noopener">駕駛偵測報告</a>
       <a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>
     </nav>
-    <p class="ver">v1.4.3 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+    <p class="ver">v1.5.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
   </footer>
 </div>
 <noscript>呢個頁面需要 JavaScript。</noscript>
@@ -354,9 +371,9 @@ const $ = (id) => document.getElementById(id);
 const video = $("video"), overlay = $("overlay"), octx = overlay.getContext("2d");
 
 /* ---------- settings ---------- */
-// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
+// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
 const CFG_KEY = "carbuddy.v2";
-const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false };
+const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", fs: true };
 let cfg = { ...defaults };
 try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch (e) {}
 const saveCfg = () => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} };
@@ -434,6 +451,8 @@ function bindSettings() {
   $("musicVol").oninput = (e) => { cfg.musicVol = +e.target.value; $("oMusicVol").textContent = cfg.musicVol + "%"; saveCfg(); };
   $("autoHide").checked = cfg.autoHide; $("wake").checked = cfg.wake;
   $("autoHide").onchange = (e) => { cfg.autoHide = e.target.checked; saveCfg(); };
+  $("fs").checked = cfg.fs; $("fs").onchange = (e) => { cfg.fs = e.target.checked; saveCfg(); if (cfg.fs) { fsTried = false; } };
+  $("stt").value = cfg.stt; $("stt").onchange = (e) => { cfg.stt = e.target.value; saveCfg(); };
   $("wake").onchange = async (e) => { cfg.wake = e.target.checked; saveCfg(); if (cfg.wake) await primeMic(); else wakeStop(); };
   $("btnCam").onclick = () => { cfg.preview = !cfg.preview; saveCfg(); applyPreview(); };
   let clearArmed = 0;
@@ -459,10 +478,28 @@ function placeTicks() {
   $("tAlarm").style.left = Math.min(perclosAlarm() / max, 1) * 100 + "%";
 }
 
+/* ---------- full screen: browsers only allow it from a tap, so it triggers on the first tap ---------- */
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+let fsTried = false;
+function goFull() {
+  if (!cfg.fs || fsTried) return;
+  const d = document, e = d.documentElement;
+  if (d.fullscreenElement || d.webkitFullscreenElement || navigator.standalone) return;
+  try { if (matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) return; } catch (x) {}
+  const f = e.requestFullscreen || e.webkitRequestFullscreen;
+  if (!f) return; // iPhone Safari has no full screen for web pages: use "Add to Home Screen"
+  fsTried = true;
+  try { const pr = f.call(e, { navigationUI: "hide" }); if (pr && pr.catch) pr.catch(() => { fsTried = false; }); } catch (x) { fsTried = false; }
+}
+document.addEventListener("click", goFull, { capture: true });
+document.addEventListener("touchend", goFull, { capture: true });
+
 /* ---------- audio, vibration, voice ---------- */
 let actx = null, gainNode = null, alarmTimer = 0;
 function ensureAudio() {
   try {
+    // iPhone: let Web Audio (alarm beeps, Buddy) play even when the silent switch is on
+    if (navigator.audioSession) navigator.audioSession.type = "playback";
     if (!actx) {
       actx = new (window.AudioContext || window.webkitAudioContext)();
       gainNode = actx.createGain();
@@ -1018,16 +1055,108 @@ async function say(text) {
   });
 }
 
+const GROQ_STT = "https://api.groq.com/openai/v1/audio/transcriptions";
+const useWhisper = () => cfg.stt === "whisper" || (cfg.stt === "auto" && cfg.provider === "groq");
+async function micStream() {
+  if (b.mic && b.mic.getAudioTracks().some((t) => t.readyState === "live")) return b.mic;
+  b.mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+  return b.mic;
+}
+function micRelease() { if (b.mic) { try { b.mic.getTracks().forEach((t) => t.stop()); } catch (e) {} b.mic = null; } }
+async function transcribe(blob) {
+  const key = (cfg.apiKey || "").trim();
+  if (!key) throw new Error("未設定 API key");
+  const ext = /mp4/.test(blob.type) ? "m4a" : /ogg/.test(blob.type) ? "ogg" : "webm";
+  const fd = new FormData();
+  fd.append("file", blob, "speech." + ext);
+  fd.append("model", "whisper-large-v3-turbo");
+  fd.append("language", "zh");
+  fd.append("temperature", "0");
+  fd.append("response_format", "json");
+  fd.append("prompt", "以下係香港廣東話日常對話，用繁體中文書寫。");
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 12000);
+  try {
+    const r = await fetch(GROQ_STT, { method: "POST", headers: { Authorization: "Bearer " + key }, body: fd, signal: ctl.signal });
+    if (!r.ok) throw new Error("辨識 " + r.status + " " + (await r.text()).slice(0, 80));
+    const t = (((await r.json()).text) || "").trim();
+    if (!t || (t.length < 14 && /字幕|訂閱|Amara|謝謝觀看|thank(s| you)( for watching)?\.?$/i.test(t))) return null; // typical silence hallucinations
+    return t;
+  } catch (e) { if (e && e.name === "AbortError") throw new Error("辨識逾時"); throw e; }
+  finally { clearTimeout(to); }
+}
+// Records until the driver stops talking (simple loudness gate), then sends the clip to Groq Whisper.
+async function listenWhisper() {
+  const talkBtn = $("btnTalk");
+  if (typeof MediaRecorder === "undefined") throw new Error("呢部手機唔支援錄音");
+  const stream = await micStream();
+  ensureAudio();
+  const mime = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm", "audio/ogg;codecs=opus"].find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
+  const src = actx.createMediaStreamSource(stream), an = actx.createAnalyser();
+  an.fftSize = 1024; src.connect(an);
+  const buf = new Float32Array(an.fftSize), chunks = [];
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+  const stopped = new Promise((r) => { rec.onstop = r; });
+  let speechAt = 0, lastLoud = 0, force = false, cancelled = false, peak = 0, noise = 0.008;
+  const calib = [], t0 = performance.now();
+  b.cancel = () => { cancelled = true; };
+  b.tap = () => { force = true; };
+  talkBtn.hidden = false;
+  try {
+    rec.start(250);
+    await new Promise((done) => {
+      const iv = setInterval(() => {
+        an.getFloatTimeDomainData(buf);
+        let sum = 0; for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        const rms = Math.sqrt(sum / buf.length), now = performance.now();
+        peak = Math.max(peak, rms);
+        if (now - t0 < 500) { calib.push(rms); noise = Math.max(0.006, calib.reduce((a, c) => a + c, 0) / calib.length); }
+        const thr = Math.max(0.02, noise * 3);
+        if (rms > thr) { if (!speechAt) speechAt = now; lastLoud = now; }
+        const n = Math.min(5, Math.round((rms / (thr * 3)) * 5));
+        setBuddy("聽緊你講…  " + "▮".repeat(n) + "▯".repeat(5 - n));
+        const spoke = speechAt && lastLoud - speechAt > 250;
+        if (cancelled || force || now - t0 > 15000 || (!speechAt && now - t0 > 9000) || (spoke && now - lastLoud > 1200)) { clearInterval(iv); done(); }
+      }, 100);
+    });
+  } finally {
+    try { if (rec.state !== "inactive") rec.stop(); } catch (e) {}
+    await Promise.race([stopped, sleep(1500)]);
+    try { src.disconnect(); } catch (e) {}
+    talkBtn.hidden = true; b.cancel = null; b.tap = null;
+    if (!IOS) micRelease(); // Android: free the mic so Buddy's voice plays at full volume
+  }
+  if (cancelled) return null;
+  if (!speechAt && !force) {
+    if (peak < 0.003) noteListen("mic-silent");
+    return null;
+  }
+  const blob = new Blob(chunks, { type: rec.mimeType || mime || "audio/webm" });
+  if (blob.size < 1500) return null;
+  setBuddy("辨識緊…");
+  return await transcribe(blob);
+}
+async function listen() {
+  if (useWhisper() && !b.sttFailed) {
+    try { return await listenWhisper(); }
+    catch (e) {
+      b.sttFailed = true;
+      addLine("系統", "雲端語音辨識失敗，改用瀏覽器辨識：" + String((e && e.message) || e).slice(0, 80));
+    }
+  }
+  return listenBrowser();
+}
+
 function noteListen(err) {
   if (b.listenNoted) return; b.listenNoted = true;
-  const why = { "not-allowed": "瀏覽器冇允許咪高峰", "service-not-allowed": "瀏覽器唔准用語音辨識", "audio-capture": "搵唔到咪高峰", network: "語音辨識連唔到網絡", "language-not-supported": "唔支援廣東話辨識" }[err] || err;
+  const why = { "not-allowed": "瀏覽器冇允許咪高峰", "service-not-allowed": "瀏覽器唔准用語音辨識", "audio-capture": "搵唔到咪高峰", network: "語音辨識連唔到網絡", "language-not-supported": "唔支援廣東話辨識", "mic-silent": "咪高峰冇收到任何聲音，可能被擋住或者靜音" }[err] || err;
   addLine("系統", "聽唔到你講嘢（" + why + "）。可以撳「撳一下講嘢」再試，或者檢查咪高峰權限。");
 }
 
 // Listens for one reply. Android Chrome ends a non-continuous recognition after the first silence, so a late start
 // would count as "no reply": keep restarting within the window, show what is heard live, and let the driver tap to talk
 // (iOS Safari only allows starting recognition from a tap).
-function listen() {
+function listenBrowser() {
   return new Promise((res) => {
     const talkBtn = $("btnTalk");
     if (!SR) { const t = setTimeout(() => { b.cancel = null; res(null); }, 15000); b.cancel = () => { clearTimeout(t); res(null); }; return; }
@@ -1081,7 +1210,7 @@ function buddyStart(manual, reason, firstText) {
   if (b.on) return;
   wakeStop();
   if (m.playing) musicStop(); // the mic cannot hear over music, so a chat pauses it
-  b.on = true; b.turns = 0; b.silent = 0; b.hist = []; b.failed = false; b.calmSince = 0; b.voiceNoted = false; b.listenNoted = false;
+  b.on = true; b.turns = 0; b.silent = 0; b.hist = []; b.failed = false; b.calmSince = 0; b.voiceNoted = false; b.listenNoted = false; b.sttFailed = false;
   b.alarmSeen = st.alarms; b.startedAt = performance.now(); b.reason = reason || "";
   const token = ++b.token;
   $("btnBuddyStop").hidden = false;
@@ -1092,7 +1221,7 @@ function buddyStart(manual, reason, firstText) {
 }
 
 function buddyAbort(keepCooldown) {
-  b.token++; b.on = false; if (!keepCooldown) b.lastEnd = performance.now();
+  b.token++; b.on = false; micRelease(); if (!keepCooldown) b.lastEnd = performance.now();
   if (b.cancel) { try { b.cancel(); } catch (e) {} b.cancel = null; }
   try { speechSynthesis.cancel(); } catch (e) {}
   $("btnBuddyStop").hidden = true;
@@ -1247,7 +1376,7 @@ function musicEl() {
     m.el = el;
     // route through Web Audio so fades and ducking also work on iPhone, where audio.volume cannot be changed
     try {
-      if (actx) {
+      if (actx && !IOS) {
         const src = actx.createMediaElementSource(el);
         m.gain = actx.createGain(); m.gain.gain.value = 0;
         src.connect(m.gain); m.gain.connect(actx.destination);
@@ -1258,7 +1387,10 @@ function musicEl() {
 }
 function setMusicVol(v) {
   if (m.gain) m.gain.gain.value = v;
-  else { try { m.el.volume = v; } catch (e) {} }
+  else {
+    try { m.el.volume = v; } catch (e) {}
+    if (IOS) m.el.muted = v < 0.2; // iPhone ignores audio.volume, so fade/duck by muting instead
+  }
 }
 // the pause button only exists while music is playing; the play button only while it is not
 function syncMusicUI() {
@@ -1283,8 +1415,9 @@ async function musicPlay(reason) {
   const el = musicEl();
   if (actx && actx.state === "suspended") { try { actx.resume(); } catch (e) {} }
   m.vol = 0; setMusicVol(0); m.stopping = false; el.muted = false;
-  try { await el.play(); }
-  catch (e) { addLine("系統", "歌曲播放失敗：" + String((e && e.message) || e).slice(0, 80)); return; }
+  try {
+    await Promise.race([el.play(), new Promise((_, rej) => setTimeout(() => rej(new Error("冇反應，請確認歌曲檔已上傳、手機冇開靜音")), 6000))]);
+  } catch (e) { addLine("系統", "歌曲播放失敗：" + String((e && e.message) || e).slice(0, 80)); return; }
   m.playing = true; m.paused = false; m.startedAt = performance.now(); m.lastRemind = m.startedAt;
   syncMusicUI();
   log("音樂：" + (reason || "播放"));

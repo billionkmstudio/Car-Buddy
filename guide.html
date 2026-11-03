@@ -107,7 +107,7 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
 
 <h2 id="start">1. 開始用</h2>
 <ol class="steps">
-  <li>用手機 Chrome（Android）或 Safari（iPhone）打開 Car Buddy 網址。</li>
+  <li>用手機 Chrome（Android）或 Safari（iPhone）打開 Car Buddy 網址。想全螢幕，見第 10 節。</li>
   <li>撳「<strong>開始偵測</strong>」，瀏覽器問鏡頭權限時揀「允許」。</li>
   <li>首次載入 AI 模型需要網絡，大約幾秒到十幾秒。</li>
   <li>坐好、面向鏡頭，睇到畫面有你，就等佢自動校準；之後想重做就撳「<strong>重新校準</strong>」。</li>
@@ -160,6 +160,8 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
     <tr><td>音樂音量</td><td>警報同 Buddy 講嘢時音樂會自動收細。</td></tr>
     <tr><td>疲倦時自動同我傾偈（Buddy）</td><td>開啟後，疲倦或警報後 Buddy 會主動開口。需要 API 先有 AI 回應，見第 6 節。</td></tr>
     <tr><td>語音喚醒（實驗）</td><td>講「Buddy」就開始傾偈，有限制，見第 7 節。</td></tr>
+    <tr><td>聽你講嘢嘅方式</td><td>自動：用 Groq 時走 Groq 雲端辨識（Whisper），較穩定，Android 同 iPhone 都適用；其他供應商用瀏覽器內置辨識。可以手動改。</td></tr>
+    <tr><td>開網頁後第一次點擊就自動全螢幕</td><td>瀏覽器唔准網頁一開就自動全螢幕，所以係你第一次點擊畫面嗰刻先會觸發。iPhone Safari 做唔到，見第 10 節。</td></tr>
     <tr><td>AI 供應商 / API key / 模型名稱 / API 網址</td><td>見第 6 節。API 網址只有揀「自訂」時出現。</td></tr>
     <tr><td>清除所有本機資料</td><td>刪除設定、API key 同全部駕駛報告，要撳兩次確認。</td></tr>
   </tbody>
@@ -222,7 +224,7 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
   <p><strong>「叫 Buddy」係實驗功能，有以下限制：</strong></p>
   <ul>
     <li>佢要不停聽你講嘢，會多用電同流動數據，聲音會交畀手機嘅語音辨識服務處理（見私隱政策）。</li>
-    <li>Android Chrome 每次重新啟動辨識可能會有「叮」一聲。</li>
+    <li>Android Chrome 每次重新啟動辨識可能會有「叮」一聲。（只影響「叫 Buddy」，同 Buddy 傾偈時嘅聆聽唔受影響。）</li>
     <li>iPhone Safari 對持續語音辨識支援唔穩定，建議用撳掣方式。</li>
     <li>車內噪音大時辨識會唔準。</li>
   </ul>
@@ -255,7 +257,11 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
 </ul>
 <p>建議：每星期睇一次。如果警報多數出現喺同一時段，就預早喺嗰段時間前安排休息站或換人駕駛。</p>
 
-<h2 id="mount">10. 手機擺放</h2>
+<h2 id="mount">10. 手機擺放同全螢幕</h2>
+<ul>
+  <li><strong>Android：</strong>開網頁後第一次點擊畫面就會全螢幕。想每次開都全螢幕、冇網址列，可以用 Chrome 選單「加到主畫面」（或「安裝應用程式」），之後由主畫面圖示開啟。</li>
+  <li><strong>iPhone：</strong>Safari 唔支援網頁全螢幕。請撳分享掣 →「加入主畫面」，之後由主畫面圖示開啟，就係全螢幕（冇網址列）。</li>
+</ul>
 <ul>
   <li>前置鏡頭要<strong>清楚見到你張臉</strong>，高度大約同眼睛差不多或略低，避免仰角影到鼻孔。</li>
   <li>用穩固嘅車用支架，唔好阻擋視線。</li>
@@ -291,7 +297,7 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
     <a href="privacy.html">私隱政策</a>
   </nav>
   <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
-  <p class="ver">v1.4.3 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+  <p class="ver">v1.5.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
 </footer>
 </div>
 
