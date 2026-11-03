@@ -3,11 +3,7 @@
  "short_name": "Car Buddy",
  "start_url": "./",
  "scope": "./",
- "display": "fullscreen",
- "display_override": [
-  "fullscreen",
-  "standalone"
- ],
+ "display": "standalone",
  "orientation": "any",
  "background_color": "#0e1113",
  "theme_color": "#0e1113",

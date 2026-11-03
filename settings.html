@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1113">
+<title>設定 · Car Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Saira+Extra+Condensed:wght@800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e1113; --panel: #161a1d; --line: #262d32; --text: #e9edef; --muted: #8c979e; --accent: #8cc7ff;
+  --ok: #3ddc97; --warn: #ffb02e; --danger: #ff5a5f;
+  --ok-bg: #122520; --ok-line: #1f4a3b; --warn-bg: #2a2110; --warn-line: #5e4616; --danger-bg: #3b1518; --danger-line: #7a2a2e;
+  --f-body: "Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-num: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text); font-family: var(--f-body); font-size: 16px; line-height: 1.75;
+  padding-block: max(14px, env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+a { color: var(--accent); }
+header.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; }
+.brand .logo {
+  font-family: "Saira Extra Condensed", "Aquarius", "Arial Narrow", Impact, sans-serif; font-weight: 800; font-size: 2.3rem; line-height: 1; letter-spacing: .02em;
+  color: #8b959c;
+}
+.brand small { font-weight: 500; color: var(--muted); font-size: .85rem; letter-spacing: .06em; }
+.back { font-size: .92rem; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: clamp(1.7rem, 6vw, 2.3rem); line-height: 1.25; margin: .4em 0 .3em; text-wrap: balance; }
+h2 { font-size: 1.35rem; line-height: 1.35; margin: 2.2em 0 .4em; padding-top: 1em; border-top: 1px solid var(--line); scroll-margin-top: 12px; text-wrap: balance; }
+h3 { font-size: 1.08rem; margin: 1.6em 0 .2em; }
+p { margin: .6em 0; }
+ul, ol { padding-left: 1.3em; margin: .5em 0; }
+li { margin: .3em 0; }
+.lead { color: var(--muted); font-size: 1.02rem; }
+.meta { color: var(--muted); font-size: .88rem; }
+.toc { display: grid; gap: 2px 18px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin: 1.2em 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); list-style: none; }
+.toc li { margin: 0; }
+.toc a { text-decoration: none; display: block; padding: 3px 0; }
+.toc a:hover { text-decoration: underline; }
+code, kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; margin: .8em 0; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 540px; font-size: .92rem; line-height: 1.55; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; background: var(--panel); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 1.05rem; letter-spacing: .03em; }
+.callout { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 10px 16px; margin: 1.1em 0; }
+.callout p { margin: .35em 0; }
+.callout.ok { background: var(--ok-bg); border-color: var(--ok-line); }
+.callout.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.callout.danger { background: var(--danger-bg); border-color: var(--danger-line); }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps li { counter-increment: s; position: relative; padding-left: 2.4em; margin: .8em 0; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: .12em; width: 1.7em; height: 1.7em; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: var(--f-num); font-size: 1.05rem; line-height: 1.55em; text-align: center; }
+button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 44px; padding: 8px 16px; cursor: pointer; }
+button:hover { border-color: #3a444b; }
+button.danger { color: var(--danger); border-color: var(--danger-line); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+footer { margin-top: 3em; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; line-height: 1.7; }
+footer p { margin: .3em 0; }
+footer nav { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98rem; margin-top: .8em; }
+
+.top-note { color: var(--muted); font-size: .9rem; margin: 0 0 1.2em; }
+section.card { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 4px 16px 14px; margin: 14px 0; }
+section.card > h2 { border: 0; margin: 12px 0 2px; padding: 0; font-size: 1.1rem; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; margin: 14px 0 0; }
+.row label { font-weight: 500; }
+.row output { font-family: var(--f-num); font-size: 1.15rem; letter-spacing: .03em; color: var(--accent); }
+.row input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); min-height: 32px; }
+.row .hint, .hint { grid-column: 1 / -1; color: var(--muted); font-size: .85rem; line-height: 1.55; margin: 2px 0 0; }
+.check { display: flex; gap: 12px; align-items: flex-start; margin: 14px 0 0; cursor: pointer; }
+.check input { flex: none; width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--accent); }
+.field { margin: 14px 0 0; }
+.field > label { display: block; font-weight: 500; margin-bottom: 4px; }
+select, input.txt { width: 100%; min-height: 44px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+select:focus-visible, input.txt:focus-visible, input[type=range]:focus-visible, input[type=checkbox]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details.more { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 4px; }
+details.more > summary { cursor: pointer; padding: 10px 0; color: var(--accent); }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+#testOut { margin-top: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: .92rem; min-height: 2.6em; white-space: pre-wrap; overflow-wrap: anywhere; display: none; }
+#testOut.ok { border-color: var(--ok-line); } #testOut.bad { border-color: var(--danger-line); }
+.saved { position: fixed; right: 14px; bottom: max(14px, env(safe-area-inset-bottom)); background: var(--ok-bg); border: 1px solid var(--ok-line); color: var(--ok); padding: 6px 14px; border-radius: 999px; font-size: .85rem; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.saved.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="./" aria-label="Car Buddy 疲勞守護"><span class="logo">Car Buddy</span><small>疲勞守護</small></a>
+  <a class="back" href="./">← 返回 Car Buddy</a>
+</header>
+
+<main>
+<h1>設定</h1>
+<p class="top-note">改動會自動儲存。呢頁會離開偵測畫面，請喺停好車時設定，完成後撳「返回 Car Buddy」。</p>
+
+<section class="card">
+  <h2>偵測</h2>
+  <div class="row"><label for="sens">靈敏度</label><output id="oSens"></output><input id="sens" type="range" min="1" max="9" step="1" data-k="sens" data-t="n">
+    <p class="hint">數字愈大愈易觸發。成日誤報就調低，反應遲就調高。</p></div>
+  <div class="row"><label for="closedSec">閉眼多久先響警報</label><output id="oClosed"></output><input id="closedSec" type="range" min="0.8" max="2.5" step="0.1" data-k="closedSec" data-t="n"></div>
+  <label class="check"><input type="checkbox" data-k="autoHide"><span>校準完成後自動隱藏鏡頭畫面<br><small class="meta">隱藏後偵測照常運作。</small></span></label>
+</section>
+
+<section class="card">
+  <h2>警報</h2>
+  <div class="row"><label for="vol">警報音量</label><output id="oVol"></output><input id="vol" type="range" min="10" max="100" step="5" data-k="vol" data-t="n">
+    <p class="hint">手機本身嘅音量都要調高。</p></div>
+  <label class="check"><input type="checkbox" data-k="voice"><span>警報時加語音提示</span></label>
+  <div class="btns"><button type="button" id="tAlarm">試聽警報</button></div>
+</section>
+
+<section class="card">
+  <h2>音樂</h2>
+  <label class="check"><input type="checkbox" data-k="music"><span>警報第 2 次起自動播歌「前面有站」</span></label>
+  <div class="row"><label for="musicVol">音樂音量</label><output id="oMusicVol"></output><input id="musicVol" type="range" min="20" max="100" step="5" data-k="musicVol" data-t="n"></div>
+</section>
+
+<section class="card">
+  <h2>Buddy 傾偈</h2>
+  <label class="check"><input type="checkbox" data-k="chat"><span>疲倦時自動同我傾偈</span></label>
+  <div class="field"><label for="provider">AI 供應商</label>
+    <select id="provider" data-k="provider">
+      <option value="groq">Groq（有免費額度）</option>
+      <option value="gemini">Google Gemini（有免費額度）</option>
+      <option value="openrouter">OpenRouter（有免費模型）</option>
+      <option value="mistral">Mistral（有免費額度）</option>
+      <option value="custom">自訂（OpenAI 相容）</option>
+    </select>
+    <p class="hint"><a id="keyLink" href="#" target="_blank" rel="noopener">取得免費 API key</a>。Key 只儲存喺呢部手機。詳細步驟見<a href="guide.html#api">使用說明</a>。</p></div>
+  <div class="field"><label for="apiKey">API key</label><input id="apiKey" class="txt" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" data-k="apiKey"></div>
+  <div class="btns">
+    <button type="button" id="tAI">測試 AI 連線</button>
+    <button type="button" id="tVoice">測試語音</button>
+    <button type="button" id="tListen">測試聽嘢</button>
+  </div>
+  <div id="testOut" role="status" aria-live="polite"></div>
+  <details class="more"><summary>進階</summary>
+    <div class="field"><label for="model">模型名稱（留空用預設）</label><input id="model" class="txt" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" data-k="model"></div>
+    <div class="field" id="endpointRow" hidden><label for="endpoint">API 網址（chat/completions）</label><input id="endpoint" class="txt" type="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="https://.../v1/chat/completions" data-k="endpoint"></div>
+    <div class="field"><label for="stt">聽你講嘢嘅方式</label>
+      <select id="stt" data-k="stt">
+        <option value="auto">自動（用 Groq 或 Gemini 時，就用同一個服務聽）</option>
+        <option value="groq">Groq 雲端辨識（Whisper）</option>
+        <option value="gemini">Google Gemini 雲端辨識</option>
+        <option value="browser">瀏覽器內置辨識（手機上常有問題）</option>
+      </select>
+      <p class="hint">雲端辨識會將你講嘢嗰幾秒錄音傳去該服務轉成文字，Car Buddy 本身唔會儲存錄音。</p></div>
+    <div class="field" id="sttKeyRow" hidden><label for="sttKey">語音辨識專用 API key</label><input id="sttKey" class="txt" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" data-k="sttKey">
+      <p class="hint">只有「聽你講嘢」用嘅服務同上面「AI 供應商」唔同時先需要。</p></div>
+    <label class="check"><input type="checkbox" data-k="wake" id="wake"><span>語音喚醒（實驗）：講「Buddy」就開始傾偈<br><small class="meta">會持續用咪高峰同語音辨識，較耗電，Android Chrome 可能有提示聲，iPhone 唔穩定。</small></span></label>
+  </details>
+</section>
+
+<section class="card">
+  <h2>資料</h2>
+  <p class="hint" style="margin-top:8px">設定、API key 同駕駛報告都只存喺呢部手機。</p>
+  <div class="btns"><button type="button" id="btnClear" class="danger">清除所有本機資料</button></div>
+</section>
+</main>
+<div class="saved" id="saved" role="status">已儲存</div>
+
+<footer>
+  <nav aria-label="頁面">
+    <a href="./">主頁</a>
+    <a href="settings.html">設定</a>
+    <a href="guide.html">使用說明</a>
+    <a href="report.html">駕駛偵測報告</a>
+    <a href="privacy.html">私隱政策</a>
+  </nav>
+  <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
+  <p class="ver">v1.6.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+</footer>
+</div>
+
+<script>
+(function () {
+  var CFG_KEY = "carbuddy.v2", TRIPS_KEY = "carbuddy.trips.v1";
+  const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", sttKey: "", fs2: false };
+  const PROVIDERS = {
+  groq: { url: "https://api.groq.com/openai/v1/chat/completions", model: "openai/gpt-oss-120b", keyUrl: "https://console.groq.com/keys" },
+  gemini: { url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", model: "gemini-2.5-flash", keyUrl: "https://aistudio.google.com/apikey" },
+  openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", model: "meta-llama/llama-3.3-70b-instruct:free", keyUrl: "https://openrouter.ai/keys" },
+  mistral: { url: "https://api.mistral.ai/v1/chat/completions", model: "mistral-small-latest", keyUrl: "https://console.mistral.ai/api-keys" },
+  custom: { url: "", model: "", keyUrl: "" },
+};
+  var cfg = Object.assign({}, defaults);
+  try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch (e) {}
+  function save() { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} }
+  var $ = function (id) { return document.getElementById(id); };
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var savedT = 0;
+  function flash() { var e = $("saved"); e.classList.add("on"); clearTimeout(savedT); savedT = setTimeout(function () { e.classList.remove("on"); }, 900); }
+
+  // ----- cloud listening helpers, same code as the main page -----
+  const GROQ_STT = "https://api.groq.com/openai/v1/audio/transcriptions";
+// which cloud service hears the driver: auto = the same service as the chat (Groq or Gemini); each needs its own key
+function sttEngine() {
+  const want = cfg.stt === "auto" ? (cfg.provider === "groq" || cfg.provider === "gemini" ? cfg.provider : "") : cfg.stt;
+  if (want !== "groq" && want !== "gemini") return null;
+  const key = ((cfg.provider === want ? cfg.apiKey : cfg.sttKey) || "").trim();
+  return key ? { kind: want, key } : { kind: want, key: "" };
+}
+function wavFrom(chunks, rate) {
+  let n = 0; chunks.forEach((c) => { n += c.length; });
+  const step = rate / 16000, outN = Math.floor(n / step), pcm = new Int16Array(outN);
+  const flat = new Float32Array(n); let o = 0; chunks.forEach((c) => { flat.set(c, o); o += c.length; });
+  for (let i = 0; i < outN; i++) {
+    const a = Math.floor(i * step), z = Math.min(n, Math.floor((i + 1) * step)); let sum = 0, k = 0;
+    for (let x = a; x < z; x++) { sum += flat[x]; k++; }
+    const v = Math.max(-1, Math.min(1, k ? sum / k : 0));
+    pcm[i] = v < 0 ? v * 32768 : v * 32767;
+  }
+  const buf = new ArrayBuffer(44 + outN * 2), dv = new DataView(buf);
+  const w = (off, str) => { for (let i = 0; i < str.length; i++) dv.setUint8(off + i, str.charCodeAt(i)); };
+  w(0, "RIFF"); dv.setUint32(4, 36 + outN * 2, true); w(8, "WAVE"); w(12, "fmt "); dv.setUint32(16, 16, true);
+  dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true);
+  dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); w(36, "data"); dv.setUint32(40, outN * 2, true);
+  new Int16Array(buf, 44).set(pcm);
+  return new Blob([buf], { type: "audio/wav" });
+}
+function blobB64(blob) {
+  return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = () => rej(new Error("讀取錄音失敗")); fr.readAsDataURL(blob); });
+}
+const BAD_STT = /字幕|訂閱|Amara|謝謝觀看|thank(s| you)( for watching)?\.?$/i;
+async function postTimed(url, init, ms) {
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), ms);
+  try { return await fetch(url, { ...init, signal: ctl.signal }); }
+  catch (e) { if (e && e.name === "AbortError") throw new Error("辨識逾時"); throw e; }
+  finally { clearTimeout(to); }
+}
+async function transcribe(blob, eng) {
+  if (!eng.key) throw new Error("未有 " + (eng.kind === "groq" ? "Groq" : "Gemini") + " API key");
+  if (eng.kind === "groq") {
+    const fd = new FormData();
+    fd.append("file", blob, "speech.wav");
+    fd.append("model", "whisper-large-v3");
+    fd.append("language", "zh"); fd.append("temperature", "0"); fd.append("response_format", "json");
+    fd.append("prompt", "以下係香港廣東話日常對話，用繁體中文書寫。");
+    const r = await postTimed(GROQ_STT, { method: "POST", headers: { Authorization: "Bearer " + eng.key }, body: fd }, 15000);
+    if (!r.ok) throw new Error("Groq 辨識 " + r.status + " " + (await r.text()).slice(0, 80));
+    const t = (((await r.json()).text) || "").trim();
+    return !t || (t.length < 14 && BAD_STT.test(t)) ? null : t;
+  }
+  const data = await blobB64(blob);
+  let lastErr = "";
+  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+    const body = {
+      contents: [{ parts: [
+        { text: "請逐字轉寫呢段錄音（香港廣東話，用繁體中文書寫）。只輸出轉寫出嚟嘅文字，唔好加任何解釋。如果冇人講嘢或者完全聽唔清，只輸出 EMPTY。" },
+        { inline_data: { mime_type: "audio/wav", data } },
+      ] }],
+      generationConfig: { temperature: 0, maxOutputTokens: 200, ...(model.includes("2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
+    };
+    const r = await postTimed("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent",
+      { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": eng.key }, body: JSON.stringify(body) }, 15000);
+    if (r.status === 404) { lastErr = "404"; continue; }
+    if (!r.ok) throw new Error("Gemini 辨識 " + r.status + " " + (await r.text()).slice(0, 80));
+    const j = await r.json();
+    const t = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || []).map((x) => x.text || "").join("")).trim();
+    return !t || /^EMPTY\b/i.test(t) || (t.length < 14 && BAD_STT.test(t)) ? null : t.replace(/^["「]|["」]$/g, "");
+  }
+  throw new Error("Gemini 辨識模型用唔到 " + lastErr);
+}
+
+
+  function paint() {
+    $("oSens").textContent = cfg.sens;
+    $("oClosed").textContent = Number(cfg.closedSec).toFixed(1) + " 秒";
+    $("oVol").textContent = cfg.vol + "%";
+    $("oMusicVol").textContent = cfg.musicVol + "%";
+    var p = PROVIDERS[cfg.provider] || PROVIDERS.custom;
+    $("model").placeholder = p.model || "模型名稱";
+    $("endpointRow").hidden = cfg.provider !== "custom";
+    $("keyLink").hidden = !p.keyUrl; if (p.keyUrl) $("keyLink").href = p.keyUrl;
+    var eng = sttEngine(); $("sttKeyRow").hidden = !(eng && cfg.provider !== eng.kind);
+  }
+  document.querySelectorAll("[data-k]").forEach(function (el) {
+    var k = el.dataset.k;
+    if (el.type === "checkbox") el.checked = !!cfg[k]; else el.value = cfg[k] == null ? "" : cfg[k];
+    var ev = el.type === "range" || el.type === "text" || el.type === "password" || el.type === "url" ? "input" : "change";
+    el.addEventListener(ev, function () {
+      cfg[k] = el.type === "checkbox" ? el.checked : el.dataset.t === "n" ? +el.value : el.value.trim();
+      if (k === "provider") { cfg.model = ""; $("model").value = ""; }
+      save(); paint(); flash();
+    });
+  });
+  $("wake").addEventListener("change", function () {
+    if (!$("wake").checked) return;
+    navigator.mediaDevices && navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) { s.getTracks().forEach(function (t) { t.stop(); }); }).catch(function () {
+      cfg.wake = false; $("wake").checked = false; save(); out("未有咪高峰權限，語音喚醒已關閉。請喺瀏覽器網站設定允許咪高峰。", "bad");
+    });
+  });
+  paint();
+
+  // ----- tests -----
+  function out(text, cls) { var e = $("testOut"); e.style.display = "block"; e.className = cls || ""; e.textContent = text; }
+  var actx = null;
+  function ctx() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); return actx; }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  $("tAlarm").onclick = function () {
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+    var c = ctx(), g = c.createGain(), comp = c.createDynamicsCompressor();
+    g.gain.value = (cfg.vol / 100) * 4; comp.threshold.value = -18; comp.knee.value = 12; comp.ratio.value = 6;
+    g.connect(comp); comp.connect(c.destination);
+    function beep(f, at) { var o = c.createOscillator(), e = c.createGain(), t = c.currentTime + at; o.type = "square"; o.frequency.value = f;
+      e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(1, t + 0.01); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      o.connect(e); e.connect(g); o.start(t); o.stop(t + 0.25); }
+    beep(2400, 0); beep(1800, 0.25); beep(2400, 0.5);
+    try { navigator.vibrate && navigator.vibrate([220, 80, 220]); } catch (e) {}
+  };
+
+  $("tAI").onclick = async function () {
+    var key = (cfg.apiKey || "").trim(), p = PROVIDERS[cfg.provider] || PROVIDERS.custom;
+    var url = cfg.provider === "custom" ? cfg.endpoint : p.url, model = (cfg.model || "").trim() || p.model;
+    if (!key) return out("未填 API key。", "bad");
+    if (!url || !model) return out("未設定 API 網址或模型。", "bad");
+    out("測試緊 " + model + " …");
+    var t0 = Date.now();
+    try {
+      var body = { model: model, messages: [{ role: "system", content: "你係 Car Buddy，用香港廣東話回答，一句話。" }, { role: "user", content: "我而家好攰，點算？" }], max_tokens: 300, temperature: 0.8 };
+      if (cfg.provider === "groq" && /gpt-oss/.test(model)) body.reasoning_effort = "low";
+      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 15000);
+      var r = await fetch(url, { method: "POST", signal: ctl.signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + key }, body: JSON.stringify(body) });
+      clearTimeout(to);
+      if (!r.ok) return out("失敗：" + r.status + " " + (await r.text()).slice(0, 160) + (r.status === 404 ? "\n（模型可能已停用：清空「進階」入面嘅模型名稱再試。）" : r.status === 401 || r.status === 403 ? "\n（API key 可能貼錯或者過期。）" : ""), "bad");
+      var j = await r.json(), t = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+      out("成功（" + ((Date.now() - t0) / 1000).toFixed(1) + " 秒）：\n" + (t || "（冇內容）"), t ? "ok" : "bad");
+    } catch (e) { out("連線失敗：" + (e && e.name === "AbortError" ? "逾時" : e && e.message || e), "bad"); }
+  };
+
+  var voices = [];
+  function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) {} }
+  $("tVoice").onclick = async function () {
+    if (!("speechSynthesis" in window)) return out("呢個瀏覽器唔支援語音朗讀。", "bad");
+    loadVoices(); if (!voices.length) { await sleep(900); loadVoices(); }
+    var L = function (x) { return String(x.lang || "").replace("_", "-").toLowerCase(); };
+    var v = voices.find(function (x) { return L(x) === "zh-hk"; }) || voices.find(function (x) { return /^yue/.test(L(x)); }) || voices.find(function (x) { return /zh-tw|zh-hant/.test(L(x)); }) || voices.find(function (x) { return /^zh|^cmn/.test(L(x)); });
+    var msg = v ? "朗讀語音：" + v.name + "（" + v.lang + "）" : "冇搵到中文語音（手機有 " + voices.length + " 個語音）。" + (IOS ? "請喺 iPhone「設定 → 輔助使用 → 朗讀內容 → 聲音」下載粵語語音。" : "請喺手機「文字轉語音」設定，首選引擎揀 Google 文字轉語音，再安裝粵語或中文語音資料。");
+    out(msg, v ? "ok" : "bad");
+    try { var u = new SpeechSynthesisUtterance("你好，我係 Car Buddy，聽到我講嘢嗎？"); if (v) { u.voice = v; u.lang = v.lang; } else u.lang = "zh-HK"; u.volume = Math.max(0.3, cfg.vol / 100); speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {}
+    if (!v && !IOS) { var a = document.createElement("a"); a.href = "intent:#Intent;action=com.android.settings.TTS_SETTINGS;end"; a.textContent = "嘗試開啟手機語音設定"; a.style.marginLeft = "8px"; $("testOut").appendChild(a); }
+  };
+
+  $("tListen").onclick = async function () {
+    var eng = sttEngine();
+    if (!eng) return out("而家揀咗「瀏覽器內置辨識」，或者 AI 供應商唔係 Groq／Gemini，呢個測試只測雲端辨識。請喺「進階」揀 Groq 或 Gemini。", "bad");
+    if (!eng.key) return out("未有 " + (eng.kind === "groq" ? "Groq" : "Gemini") + " API key。", "bad");
+    var stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
+    catch (e) { return out("用唔到咪高峰：" + (e && e.name || e) + "。請喺瀏覽器網站設定允許咪高峰。", "bad"); }
+    var c = ctx(), src = c.createMediaStreamSource(stream), an = c.createAnalyser(), proc = c.createScriptProcessor(4096, 1, 1), mute = c.createGain();
+    an.fftSize = 1024; mute.gain.value = 0;
+    var buf = new Float32Array(an.fftSize), chunks = [], peak = 0, speechAt = 0, lastLoud = 0, noise = 0.008, calib = [], t0 = performance.now();
+    proc.onaudioprocess = function (e) { chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
+    src.connect(an); src.connect(proc); proc.connect(mute); mute.connect(c.destination);
+    await new Promise(function (done) {
+      var iv = setInterval(function () {
+        an.getFloatTimeDomainData(buf);
+        var sum = 0; for (var i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        var rms = Math.sqrt(sum / buf.length), now = performance.now();
+        peak = Math.max(peak, rms);
+        if (now - t0 < 500) { calib.push(rms); noise = Math.max(0.006, calib.reduce(function (a, x) { return a + x; }, 0) / calib.length); }
+        var thr = Math.max(0.012, noise * 3);
+        if (rms > thr) { if (!speechAt) speechAt = now; lastLoud = now; }
+        var n = Math.min(5, Math.round(rms / (thr * 3) * 5));
+        out("請講一句（講完停一停）…  " + "▮".repeat(n) + "▯".repeat(5 - n));
+        if (now - t0 > 9000 || (!speechAt && now - t0 > 7000) || (speechAt && lastLoud - speechAt > 250 && now - lastLoud > 1200)) { clearInterval(iv); done(); }
+      }, 100);
+    });
+    proc.onaudioprocess = null; try { src.disconnect(); proc.disconnect(); mute.disconnect(); } catch (e) {}
+    stream.getTracks().forEach(function (t) { t.stop(); });
+    if (!speechAt) return out("咪高峰收唔到你把聲（最大聲量 " + peak.toFixed(3) + "）。請確認冇俾其他 App 佔用咪高峰，同埋瀏覽器已允許。", "bad");
+    out("辨識緊…");
+    try {
+      var text = await transcribe(wavFrom(chunks, c.sampleRate), eng);
+      out(text ? "聽到：「" + text + "」" : "有聲音但辨識唔到內容，請講大聲啲再試。", text ? "ok" : "bad");
+    } catch (e) { out("辨識失敗：" + (e && e.message || e), "bad"); }
+  };
+
+  var armed = 0;
+  $("btnClear").onclick = function () {
+    var now = Date.now(), b = $("btnClear");
+    if (now - armed > 6000) { armed = now; b.textContent = "再撳一次確認清除（設定、API key、駕駛報告）"; setTimeout(function () { b.textContent = "清除所有本機資料"; }, 6000); return; }
+    try { localStorage.removeItem(CFG_KEY); localStorage.removeItem(TRIPS_KEY); } catch (e) {}
+    location.reload();
+  };
+})();
+</script>
+
+</body>
+</html>

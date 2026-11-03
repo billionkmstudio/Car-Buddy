@@ -49,11 +49,13 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 14px; }
+.hdr-r { display: flex; align-items: baseline; gap: 14px; }
+.setlink { color: var(--accent); text-decoration: none; font-size: .95rem; padding: 6px 2px; }
 header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; min-width: 0; }
 .brand .logo {
-  font-family: "Saira Extra Condensed", "Aquarius", "Arial Narrow", Impact, sans-serif; font-weight: 800; font-size: 2.3rem; line-height: 1; letter-spacing: .02em;
-  color: #d3d9de;
+  font-family: "Saira Extra Condensed", "Arial Narrow", Impact, sans-serif; font-weight: 800; font-size: 2.3rem; line-height: 1; letter-spacing: .02em;
+  color: #8b959c;
 }
 .brand small { font-family: var(--f-body); letter-spacing: .06em; font-weight: 500; color: var(--muted); font-size: .85rem; text-transform: none; }
 .fnav { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 8px; }
@@ -199,7 +201,7 @@ footer .ver a { color: var(--accent); }
 <div class="wrap">
   <header>
     <a class="brand" href="./" aria-label="Car Buddy 疲勞守護"><span class="logo">Car Buddy</span><small>疲勞守護</small></a>
-    <div class="engine" id="engine">—</div>
+    <div class="hdr-r"><div class="engine" id="engine">—</div><a class="setlink" href="settings.html">設定</a></div>
   </header>
 
   <div id="err" role="alert"></div>
@@ -244,7 +246,6 @@ footer .ver a { color: var(--accent); }
       <button id="btnCal" type="button" disabled>重新校準</button>
       <button id="btnTest" type="button">測試警報</button>
       <button id="btnCam" class="wide" type="button">隱藏鏡頭畫面</button>
-      <button id="btnFull" class="wide" type="button">全螢幕（再撳一次退出）</button>
     </section>
 
     <section id="buddy" aria-live="polite">
@@ -252,7 +253,6 @@ footer .ver a { color: var(--accent); }
         <h2>Buddy 傾偈</h2>
         <div class="btns">
           <button id="btnMusic" type="button">播歌</button>
-          <button id="btnVoiceTest" type="button">測試語音</button>
           <button id="btnBuddyTest" type="button">同 Buddy 傾偈</button>
           <button id="btnTalk" type="button" hidden>撳一下講嘢</button>
           <button id="btnBuddyStop" type="button" hidden>停止傾偈</button>
@@ -262,7 +262,7 @@ footer .ver a { color: var(--accent); }
       <div id="mState" hidden></div>
       <div id="wState" hidden></div>
       <div id="bLines"></div>
-      <p class="hint">聽唔到 Buddy 講嘢？去手機「文字轉語音」設定，首選引擎揀 Google 文字轉語音，並安裝粵語或中文語音資料。<a href="intent:#Intent;action=com.android.settings.TTS_SETTINGS;end">嘗試開啟設定</a></p>
+      <p class="hint">聽唔到 Buddy 講嘢、或者 Buddy 聽唔到你？去「設定」入面做測試。</p>
     </section>
 
     <section id="logPanel">
@@ -270,99 +270,20 @@ footer .ver a { color: var(--accent); }
       <ul id="log"><li class="empty">未有事件</li></ul>
     </section>
 
-    <details id="settings">
-      <summary>設定</summary>
-      <div class="set-grid">
-        <div class="row">
-          <label for="sens">靈敏度</label><output id="oSens">5</output>
-          <input id="sens" type="range" min="1" max="9" step="1">
-          <p class="hint">數字愈大愈易觸發。行車前先喺安全地方試。</p>
-        </div>
-        <div class="row">
-          <label for="closedSec">閉眼多久先響警報</label><output id="oClosed">1.2 秒</output>
-          <input id="closedSec" type="range" min="0.8" max="2.5" step="0.1">
-        </div>
-        <div class="row">
-          <label for="vol">警報音量</label><output id="oVol">70%</output>
-          <input id="vol" type="range" min="10" max="100" step="5">
-          <p class="hint">手機本身嘅音量都要調高。</p>
-        </div>
-        <div class="row">
-          <label for="fps">偵測上限</label>
-          <select id="fps">
-            <option value="8">8 fps（慳電、較凍）</option>
-            <option value="12">12 fps</option>
-            <option value="15">15 fps（較準）</option>
-          </select>
-        </div>
-        <label class="check"><input id="voice" type="checkbox">警報時加語音提示</label>
-        <label class="check"><input id="preview" type="checkbox">顯示鏡頭畫面（隱藏後仍然會繼續偵測）</label>
-        <label class="check"><input id="autoHide" type="checkbox">校準完成後自動隱藏鏡頭畫面</label>
-        <label class="check"><input id="fs" type="checkbox">開網頁後第一次點擊就自動全螢幕（實驗；Samsung 手機可能會彈出提示，建議用「加到主畫面」）</label>
-        <label class="check"><input id="music" type="checkbox">警報第 2 次起自動播歌「前面有站」</label>
-        <div class="row">
-          <label for="musicVol">音樂音量</label><output id="oMusicVol">90%</output>
-          <input id="musicVol" type="range" min="20" max="100" step="5">
-          <p class="hint">警報同 Buddy 講嘢時音樂會自動收細。手機本身嘅媒體音量都要調高。</p>
-        </div>
-        <label class="check"><input id="chat" type="checkbox">疲倦時自動同我傾偈（Buddy）</label>
-        <label class="check"><input id="wake" type="checkbox">語音喚醒（實驗）：講「Buddy」就開始傾偈</label>
-        <p class="hint">語音喚醒會持續使用咪高峰同語音辨識，可能多啲用電同數據。Android Chrome 每次重新聆聽都可能有提示聲。播歌期間會暫停，按「暫停音樂」後恢復。</p>
-        <div class="field">
-          <label for="provider">AI 供應商</label>
-          <select id="provider">
-            <option value="groq">Groq（有免費額度）</option>
-            <option value="gemini">Google Gemini（有免費額度）</option>
-            <option value="openrouter">OpenRouter（有免費模型）</option>
-            <option value="mistral">Mistral（有免費額度）</option>
-            <option value="custom">自訂（OpenAI 相容）</option>
-          </select>
-          <p class="hint"><a id="keyLink" href="#" target="_blank" rel="noopener">取得免費 API key</a>。Key 只儲存喺呢部手機嘅瀏覽器。冇 key 或連線失敗時，Buddy 會用內置簡單對話。</p>
-        </div>
-        <div class="field">
-          <label for="apiKey">API key</label>
-          <input id="apiKey" class="txt" type="password" autocomplete="off" autocapitalize="none" spellcheck="false">
-        </div>
-        <div class="field">
-          <label for="model">模型名稱（留空用預設）</label>
-          <input id="model" class="txt" type="text" autocomplete="off" autocapitalize="none" spellcheck="false">
-        </div>
-        <div class="field">
-          <label for="stt">聽你講嘢嘅方式</label>
-          <select id="stt">
-            <option value="auto">自動（用 Groq 或 Gemini 時，就用同一個服務聽）</option>
-            <option value="groq">Groq 雲端辨識（Whisper）</option>
-            <option value="gemini">Google Gemini 雲端辨識</option>
-            <option value="browser">瀏覽器內置辨識（Android／iPhone 常有問題）</option>
-          </select>
-          <p class="hint">雲端辨識會將你講嘢嗰幾秒錄音傳去該服務轉成文字，Car Buddy 本身唔會儲存錄音。</p>
-        </div>
-        <div class="field" id="sttKeyRow" hidden>
-          <label for="sttKey">語音辨識專用 API key</label>
-          <input id="sttKey" class="txt" type="password" autocomplete="off" autocapitalize="none" spellcheck="false">
-          <p class="hint">只有「聽你講嘢」用嘅服務同上面「AI 供應商」唔同時先需要填（例如聊天用 OpenRouter，聽嘢用 Groq）。</p>
-        </div>
-        <div class="field" id="endpointRow" hidden>
-          <label for="endpoint">API 網址（chat/completions）</label>
-          <input id="endpoint" class="txt" type="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="https://.../v1/chat/completions">
-        </div>
-        <p class="hint">設定詳情同 API 申請步驟，請睇<a href="guide.html" target="_blank" rel="noopener">使用說明</a>。</p>
-        <button id="btnClear" class="danger" type="button">清除所有本機資料（設定、API key、駕駛報告）</button>
-      </div>
-    </details>
   </main>
 
   <footer>
     <p>呢個係輔助提示，唔可以代替休息。覺得疲倦就要停車休息。</p>
     <p>手機要固定穩陣先開始，行車時唔好操作螢幕。鏡頭畫面只喺手機入面處理，唔會上傳。</p>
     <p>開啟 Buddy 傾偈後，你講嘅說話文字會傳送畀你揀嘅 AI 供應商；講嘢嗰幾秒嘅錄音會傳去 Groq 或 Google Gemini（雲端辨識時）或由瀏覽器語音服務處理；鏡頭畫面永遠唔會傳出去。</p>
-    <p><a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>：你嘅樣貌只喺你部手機處理，唔會上傳或儲存喺任何伺服器。</p>
-    <nav class="fnav" aria-label="說明頁面" title="呢啲頁面會喺新分頁打開，請喺停車後先睇">
-      <a href="guide.html" target="_blank" rel="noopener">使用說明</a>
-      <a href="report.html" target="_blank" rel="noopener">駕駛偵測報告</a>
-      <a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>
+    <p>你嘅樣貌只喺你部手機處理，唔會上傳或儲存喺任何伺服器。</p>
+    <nav class="fnav" aria-label="其他頁面" title="開啟呢啲頁面會離開偵測，請停車後先睇">
+      <a href="settings.html">設定</a>
+      <a href="guide.html">使用說明</a>
+      <a href="report.html">駕駛偵測報告</a>
+      <a href="privacy.html">私隱政策</a>
     </nav>
-    <p class="ver">v1.5.1 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+    <p class="ver">v1.6.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
   </footer>
 </div>
 <noscript>呢個頁面需要 JavaScript。</noscript>
@@ -378,7 +299,7 @@ const $ = (id) => document.getElementById(id);
 const video = $("video"), overlay = $("overlay"), octx = overlay.getContext("2d");
 
 /* ---------- settings ---------- */
-// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.5.1 Gemini listening, WAV recording, key not shared across services, fullscreen opt-in button · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
+// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.6.0 settings moved to settings.html, fullscreen removed, gray brand, iPhone voice-music unlock, Gemini model pick, whisper-large-v3 · 1.5.1 Gemini listening, WAV recording, key not shared across services, fullscreen opt-in button · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
 const CFG_KEY = "carbuddy.v2";
 const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", sttKey: "", fs2: false };
 let cfg = { ...defaults };
@@ -418,100 +339,25 @@ function applyPreview() {
   $("cam").classList.toggle("mini", !show);
   document.body.classList.toggle("cam-off", !show);
   $("btnCam").textContent = show ? "隱藏鏡頭畫面" : "顯示鏡頭畫面";
-  $("preview").checked = show;
   if (!show) octx.clearRect(0, 0, overlay.width, overlay.height);
 }
 
+// settings live on settings.html and are stored in localStorage; this page only reads them
 function bindSettings() {
-  $("sens").value = cfg.sens; $("closedSec").value = cfg.closedSec; $("vol").value = cfg.vol;
-  $("fps").value = String(cfg.fps); $("voice").checked = cfg.voice; $("preview").checked = cfg.preview;
-  const paint = () => {
-    $("oSens").textContent = cfg.sens;
-    $("oClosed").textContent = Number(cfg.closedSec).toFixed(1) + " 秒";
-    $("oVol").textContent = cfg.vol + "%";
-    applyPreview();
-    placeTicks();
-  };
-  $("sens").oninput = (e) => { cfg.sens = +e.target.value; saveCfg(); paint(); };
-  $("closedSec").oninput = (e) => { cfg.closedSec = +e.target.value; saveCfg(); paint(); };
-  $("vol").oninput = (e) => { cfg.vol = +e.target.value; saveCfg(); setGain(); paint(); };
-  $("fps").onchange = (e) => { cfg.fps = +e.target.value; saveCfg(); };
-  $("voice").onchange = (e) => { cfg.voice = e.target.checked; saveCfg(); };
-  $("preview").onchange = (e) => { cfg.preview = e.target.checked; saveCfg(); paint(); };
-  $("chat").checked = cfg.chat; $("provider").value = cfg.provider;
-  $("apiKey").value = cfg.apiKey; $("model").value = cfg.model; $("endpoint").value = cfg.endpoint;
-  const chatPaint = () => {
-    const p = PROVIDERS[cfg.provider] || PROVIDERS.custom;
-    $("model").placeholder = p.model || "模型名稱";
-    $("endpointRow").hidden = cfg.provider !== "custom";
-    $("keyLink").hidden = !p.keyUrl;
-    if (p.keyUrl) $("keyLink").href = p.keyUrl;
-    if (!b.on) idleBuddy();
-  };
-  $("chat").onchange = (e) => { cfg.chat = e.target.checked; saveCfg(); if (!cfg.chat) buddyAbort(); chatPaint(); };
-  $("provider").onchange = (e) => { cfg.provider = e.target.value; cfg.model = ""; $("model").value = ""; saveCfg(); chatPaint(); };
-  $("apiKey").oninput = (e) => { cfg.apiKey = e.target.value.trim(); saveCfg(); chatPaint(); };
-  $("model").oninput = (e) => { cfg.model = e.target.value.trim(); saveCfg(); };
-  $("endpoint").oninput = (e) => { cfg.endpoint = e.target.value.trim(); saveCfg(); };
-  $("music").checked = cfg.music; $("musicVol").value = cfg.musicVol; $("oMusicVol").textContent = cfg.musicVol + "%";
-  $("music").onchange = (e) => { cfg.music = e.target.checked; saveCfg(); };
-  $("musicVol").oninput = (e) => { cfg.musicVol = +e.target.value; $("oMusicVol").textContent = cfg.musicVol + "%"; saveCfg(); };
-  $("autoHide").checked = cfg.autoHide; $("wake").checked = cfg.wake;
-  $("autoHide").onchange = (e) => { cfg.autoHide = e.target.checked; saveCfg(); };
-  $("fs").checked = cfg.fs2; $("fs").onchange = (e) => { cfg.fs2 = e.target.checked; saveCfg(); fsTried = false; };
-  const sttPaint = () => { const eng = sttEngine(); $("sttKeyRow").hidden = !(eng && cfg.provider !== eng.kind); };
-  $("stt").value = cfg.stt; $("stt").onchange = (e) => { cfg.stt = e.target.value; saveCfg(); sttPaint(); };
-  $("sttKey").value = cfg.sttKey; $("sttKey").oninput = (e) => { cfg.sttKey = e.target.value.trim(); saveCfg(); };
-  $("provider").addEventListener("change", sttPaint);
-  sttPaint();
-  $("wake").onchange = async (e) => { cfg.wake = e.target.checked; saveCfg(); if (cfg.wake) await primeMic(); else wakeStop(); };
-  $("btnFull").onclick = () => {
-    const d = document, e = d.documentElement;
-    try {
-      if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); return; }
-      const f = e.requestFullscreen || e.webkitRequestFullscreen;
-      if (f) f.call(e); else addLine("系統", "呢個瀏覽器唔支援網頁全螢幕。iPhone 請用「加入主畫面」。");
-    } catch (x) {}
-  };
+  const paint = () => { applyPreview(); placeTicks(); };
   $("btnCam").onclick = () => { cfg.preview = !cfg.preview; saveCfg(); applyPreview(); };
-  let clearArmed = 0;
-  $("btnClear").onclick = () => {
-    const now = Date.now();
-    if (now - clearArmed > 6000) {
-      clearArmed = now;
-      $("btnClear").textContent = "再按一次確認清除";
-      setTimeout(() => { $("btnClear").textContent = "清除所有本機資料（設定、API key、駕駛報告）"; }, 6000);
-      return;
-    }
-    trip = null; // don't let the autosave write the log back
-    try { localStorage.removeItem(CFG_KEY); localStorage.removeItem(TRIPS_KEY); } catch (e) {}
-    location.reload();
-  };
-  chatPaint();
-  paint();
+  idleBuddy(); paint();
   bindSettings.paint = paint;
 }
+addEventListener("pageshow", (e) => { if (e.persisted) location.reload(); }); // coming back from the settings page
 function placeTicks() {
   const max = 0.4;
   $("tWarn").style.left = Math.min(perclosWarn() / max, 1) * 100 + "%";
   $("tAlarm").style.left = Math.min(perclosAlarm() / max, 1) * 100 + "%";
 }
 
-/* ---------- full screen: browsers only allow it from a tap, so it triggers on the first tap ---------- */
+/* ---------- platform ---------- */
 const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-let fsTried = false;
-function goFull() {
-  if (!cfg.fs2 || fsTried) return;
-  const d = document, e = d.documentElement;
-  if (d.fullscreenElement || d.webkitFullscreenElement || navigator.standalone) return;
-  try { if (matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) return; } catch (x) {}
-  const f = e.requestFullscreen || e.webkitRequestFullscreen;
-  if (!f) return; // iPhone Safari has no full screen for web pages: use "Add to Home Screen"
-  fsTried = true;
-  try { const pr = f.call(e, { navigationUI: "hide" }); if (pr && pr.catch) pr.catch(() => { fsTried = false; }); } catch (x) { fsTried = false; }
-}
-document.addEventListener("click", goFull, { capture: true });
-document.addEventListener("touchend", goFull, { capture: true });
 
 /* ---------- audio, vibration, voice ---------- */
 let actx = null, gainNode = null, alarmTimer = 0;
@@ -957,7 +803,7 @@ function sysPrompt() {
   return `你係「Car Buddy」，一個陪司機傾偈嘅車載語音伙伴，用香港廣東話口語回答。司機而家有疲倦跡象（近一分鐘閉眼比例約 ${Math.round(st.perclos * 100)}%，打咗 ${st.yawns} 次哈欠，已偵測約 ${mins} 分鐘）。
 規則：
 1. 每次只講一至兩句短句，總共唔超過 40 個字，因為內容會用語音讀出嚟。
-2. 呢個係雙向對話。司機講咗嘢，你一定要先直接回應佢剛剛講嘅內容（佢問問題就答，佢講事情就承接），先至可以順勢再問一條簡單易答嘅輕鬆問題。唔好自說自話，唔好忽略司機講嘅嘢，亦唔好重複問已經答咗嘅問題。
+2. 呢個係雙向對話。司機講咗嘢，你一定要先直接回應佢剛剛講嘅內容（佢問問題就答，佢講事情就承接），先至可以順勢再問一條簡單易答嘅輕鬆問題。唔好自說自話，唔好忽略司機講嘅嘢，亦唔好重複問已經答咗嘅問題。司機嘅說話係由語音辨識轉成文字，可能有錯字或同音字，請按上文猜佢意思；真係完全睇唔明，就簡短請佢再講一次。
 3. 唔好用列表、符號、emoji，唔好用英文長句。
 4. 如果司機講明好攰或者想瞓，叫佢盡快喺安全嘅地方停車休息，唔好叫佢硬撐。
 5. 唔好叫司機望螢幕或者做任何需要用手嘅嘢。
@@ -1003,7 +849,7 @@ async function askLLM(userText) {
     const errText = await r.text();
     const alt = /model/i.test(errText) ? await pickModel(url, key) : null;
     if (!alt || alt === model) throw new Error(r.status + " " + errText.slice(0, 120));
-    cfg.model = alt; saveCfg(); $("model").value = alt;
+    cfg.model = alt; saveCfg();
     addLine("系統", "原模型已停用，自動改用 " + alt);
     r = await call(alt);
   }
@@ -1022,6 +868,10 @@ async function pickModel(chatUrl, key) {
     const j = await r.json();
     const ids = (j.data || j.models || []).map((m) => String(m.id || m.name || "").replace(/^models\//, ""))
       .filter((id) => id && !/whisper|tts|orpheus|guard|safeguard|embed|moderat|image|vision|audio|transcri|imagen|veo|dall|rerank/i.test(id));
+    if (/generativelanguage/.test(chatUrl)) {
+      const fl = ids.map((id) => { const mm = /^gemini-(\d+(?:\.\d+)?)-flash$/.exec(id); return mm ? { id, v: parseFloat(mm[1]) } : null; }).filter(Boolean).sort((a, z) => z.v - a.v);
+      if (fl.length) return fl[0].id;
+    }
     const prefs = [/gpt-oss-120b/, /gpt-oss-20b/, /llama-3\.3-70b/, /qwen/, /llama/, /gemini.*flash/, /mistral-small/, /./];
     for (const p of prefs) { const hit = ids.find((id) => p.test(id)); if (hit) return hit; }
   } catch (e) {}
@@ -1121,7 +971,7 @@ async function transcribe(blob, eng) {
   if (eng.kind === "groq") {
     const fd = new FormData();
     fd.append("file", blob, "speech.wav");
-    fd.append("model", "whisper-large-v3-turbo");
+    fd.append("model", "whisper-large-v3");
     fd.append("language", "zh"); fd.append("temperature", "0"); fd.append("response_format", "json");
     fd.append("prompt", "以下係香港廣東話日常對話，用繁體中文書寫。");
     const r = await postTimed(GROQ_STT, { method: "POST", headers: { Authorization: "Bearer " + eng.key }, body: fd }, 15000);
@@ -1172,7 +1022,7 @@ async function listenCloud(eng) {
         const rms = Math.sqrt(sum / buf.length), now = performance.now();
         peak = Math.max(peak, rms);
         if (now - t0 < 500) { calib.push(rms); noise = Math.max(0.006, calib.reduce((a, c) => a + c, 0) / calib.length); }
-        const thr = Math.max(0.02, noise * 3);
+        const thr = Math.max(0.012, noise * 3);
         if (rms > thr) { if (!speechAt) speechAt = now; lastLoud = now; }
         const n = Math.min(5, Math.round((rms / (thr * 3)) * 5));
         setBuddy("聽緊你講…  " + "▮".repeat(n) + "▯".repeat(5 - n));
@@ -1362,6 +1212,7 @@ function buddyTick(now) {
 $("btnBuddyTest").onclick = async () => {
   if (b.on) return;
   ensureAudio();
+  primeMusic(); // unlock the song inside this tap, so "播歌" by voice can start it later (iPhone needs this)
   await primeMic();
   buddyStart(false, "user");
 };
@@ -1391,7 +1242,7 @@ function wakeStart() {
   };
   rec.onerror = (e) => {
     if (e && (e.error === "not-allowed" || e.error === "service-not-allowed")) {
-      cfg.wake = false; saveCfg(); $("wake").checked = false;
+      cfg.wake = false; saveCfg();
       addLine("系統", "語音喚醒需要咪高峰權限，已關閉。");
     }
   };
@@ -1408,15 +1259,6 @@ function wakeLoop() {
 setInterval(wakeLoop, 500);
 $("btnTalk").onclick = () => { if (b.tap) b.tap(); };
 $("btnBuddyStop").onclick = () => { buddyAbort(); log("Buddy：手動停止"); };
-$("btnVoiceTest").onclick = async () => {
-  ensureAudio();
-  b.voiceNoted = false;
-  await waitVoices();
-  const v = pickVoice();
-  const langs = [...new Set(voicesCache.map((x) => x.lang))].join("、") || "冇";
-  addLine("系統", v ? `朗讀語音：${v.name}（${v.lang}）` : `冇搵到中文語音。手機而家有 ${voicesCache.length} 個語音，語言：${langs}`);
-  await say("你好，我係 Car Buddy，聽到我講嘢嗎？");
-};
 idleBuddy();
 
 /* ---------- Music: the driver's own song, played from the same folder as this page ---------- */
