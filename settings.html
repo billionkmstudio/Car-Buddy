@@ -30,7 +30,7 @@ header.top { display: flex; justify-content: space-between; align-items: baselin
 .brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; }
 .brand .logo {
   font-family: "Saira Extra Condensed", "Aquarius", "Arial Narrow", Impact, sans-serif; font-weight: 800; font-size: 2.3rem; line-height: 1; letter-spacing: .02em;
-  color: #8b959c;
+  color: #6a747b;
 }
 .brand small { font-weight: 500; color: var(--muted); font-size: .85rem; letter-spacing: .06em; }
 .back { font-size: .92rem; text-decoration: none; }
@@ -180,7 +180,7 @@ details.more > summary { cursor: pointer; padding: 10px 0; color: var(--accent);
     <a href="privacy.html">私隱政策</a>
   </nav>
   <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
-  <p class="ver">v1.6.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+  <p class="ver">v1.6.1 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
 </footer>
 </div>
 
@@ -197,6 +197,7 @@ details.more > summary { cursor: pointer; padding: 10px 0; color: var(--accent);
 };
   var cfg = Object.assign({}, defaults);
   try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch (e) {}
+  if (!cfg.m161) { cfg.model = ""; cfg.m161 = 1; try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} }
   function save() { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} }
   var $ = function (id) { return document.getElementById(id); };
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -335,7 +336,7 @@ async function transcribe(blob, eng) {
       var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 15000);
       var r = await fetch(url, { method: "POST", signal: ctl.signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + key }, body: JSON.stringify(body) });
       clearTimeout(to);
-      if (!r.ok) return out("失敗：" + r.status + " " + (await r.text()).slice(0, 160) + (r.status === 404 ? "\n（模型可能已停用：清空「進階」入面嘅模型名稱再試。）" : r.status === 401 || r.status === 403 ? "\n（API key 可能貼錯或者過期。）" : ""), "bad");
+      if (!r.ok) return out("失敗：" + r.status + " " + (await r.text()).slice(0, 160) + (r.status === 503 || r.status === 429 ? "\n（服務暫時太多人用，等一陣再試；Buddy 傾偈時會自動轉用其他模型。）" : r.status === 404 ? "\n（模型可能已停用：清空「進階」入面嘅模型名稱再試。）" : r.status === 401 || r.status === 403 ? "\n（API key 可能貼錯或者過期。）" : ""), "bad");
       var j = await r.json(), t = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
       out("成功（" + ((Date.now() - t0) / 1000).toFixed(1) + " 秒）：\n" + (t || "（冇內容）"), t ? "ok" : "bad");
     } catch (e) { out("連線失敗：" + (e && e.name === "AbortError" ? "逾時" : e && e.message || e), "bad"); }
@@ -359,8 +360,9 @@ async function transcribe(blob, eng) {
     if (!eng) return out("而家揀咗「瀏覽器內置辨識」，或者 AI 供應商唔係 Groq／Gemini，呢個測試只測雲端辨識。請喺「進階」揀 Groq 或 Gemini。", "bad");
     if (!eng.key) return out("未有 " + (eng.kind === "groq" ? "Groq" : "Gemini") + " API key。", "bad");
     var stream;
+    try { if (navigator.audioSession) navigator.audioSession.type = "play-and-record"; } catch (e) {}
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
-    catch (e) { return out("用唔到咪高峰：" + (e && e.name || e) + "。請喺瀏覽器網站設定允許咪高峰。", "bad"); }
+    catch (e) { try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (x) {} return out("用唔到咪高峰：" + (e && e.name || e) + "。請喺瀏覽器網站設定允許咪高峰。", "bad"); }
     var c = ctx(), src = c.createMediaStreamSource(stream), an = c.createAnalyser(), proc = c.createScriptProcessor(4096, 1, 1), mute = c.createGain();
     an.fftSize = 1024; mute.gain.value = 0;
     var buf = new Float32Array(an.fftSize), chunks = [], peak = 0, speechAt = 0, lastLoud = 0, noise = 0.008, calib = [], t0 = performance.now();
@@ -382,6 +384,7 @@ async function transcribe(blob, eng) {
     });
     proc.onaudioprocess = null; try { src.disconnect(); proc.disconnect(); mute.disconnect(); } catch (e) {}
     stream.getTracks().forEach(function (t) { t.stop(); });
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
     if (!speechAt) return out("咪高峰收唔到你把聲（最大聲量 " + peak.toFixed(3) + "）。請確認冇俾其他 App 佔用咪高峰，同埋瀏覽器已允許。", "bad");
     out("辨識緊…");
     try {
