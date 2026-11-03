@@ -160,8 +160,9 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
     <tr><td>音樂音量</td><td>警報同 Buddy 講嘢時音樂會自動收細。</td></tr>
     <tr><td>疲倦時自動同我傾偈（Buddy）</td><td>開啟後，疲倦或警報後 Buddy 會主動開口。需要 API 先有 AI 回應，見第 6 節。</td></tr>
     <tr><td>語音喚醒（實驗）</td><td>講「Buddy」就開始傾偈，有限制，見第 7 節。</td></tr>
-    <tr><td>聽你講嘢嘅方式</td><td>自動：用 Groq 時走 Groq 雲端辨識（Whisper），較穩定，Android 同 iPhone 都適用；其他供應商用瀏覽器內置辨識。可以手動改。</td></tr>
-    <tr><td>開網頁後第一次點擊就自動全螢幕</td><td>瀏覽器唔准網頁一開就自動全螢幕，所以係你第一次點擊畫面嗰刻先會觸發。iPhone Safari 做唔到，見第 10 節。</td></tr>
+    <tr><td>聽你講嘢嘅方式</td><td>自動：AI 供應商係 Groq 就用 Groq（Whisper）聽，係 Google Gemini 就用 Gemini 聽，用同一個 API key，Android 同 iPhone 都較穩定；其他供應商會用瀏覽器內置辨識（常有問題）。如果聽嘢要用唔同嘅服務，揀嗰個服務後會出現「語音辨識專用 API key」欄。</td></tr>
+    <tr><td>全螢幕掣</td><td>主頁「全螢幕」掣，撳一下進入，再撳退出。iPhone Safari 做唔到，見第 10 節。</td></tr>
+    <tr><td>開網頁後第一次點擊就自動全螢幕（實驗）</td><td>預設關閉。部分 Samsung 手機會彈出全螢幕提示，需要由螢幕邊緣向內滑動先見到按鍵，所以建議改用「加到主畫面」。</td></tr>
     <tr><td>AI 供應商 / API key / 模型名稱 / API 網址</td><td>見第 6 節。API 網址只有揀「自訂」時出現。</td></tr>
     <tr><td>清除所有本機資料</td><td>刪除設定、API key 同全部駕駛報告，要撳兩次確認。</td></tr>
   </tbody>
@@ -259,7 +260,7 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
 
 <h2 id="mount">10. 手機擺放同全螢幕</h2>
 <ul>
-  <li><strong>Android：</strong>開網頁後第一次點擊畫面就會全螢幕。想每次開都全螢幕、冇網址列，可以用 Chrome 選單「加到主畫面」（或「安裝應用程式」），之後由主畫面圖示開啟。</li>
+  <li><strong>Android：</strong>最穩陣係用 Chrome 選單「加到主畫面」（或「安裝應用程式」），之後由主畫面圖示開啟，就冇網址列。亦可以撳主頁「全螢幕」掣；全螢幕時由螢幕邊緣向內滑動就見返返回掣，再撳「全螢幕」掣可以退出。</li>
   <li><strong>iPhone：</strong>Safari 唔支援網頁全螢幕。請撳分享掣 →「加入主畫面」，之後由主畫面圖示開啟，就係全螢幕（冇網址列）。</li>
 </ul>
 <ul>
@@ -297,7 +298,7 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
     <a href="privacy.html">私隱政策</a>
   </nav>
   <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
-  <p class="ver">v1.5.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+  <p class="ver">v1.5.1 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
 </footer>
 </div>
 

@@ -244,6 +244,7 @@ footer .ver a { color: var(--accent); }
       <button id="btnCal" type="button" disabled>重新校準</button>
       <button id="btnTest" type="button">測試警報</button>
       <button id="btnCam" class="wide" type="button">隱藏鏡頭畫面</button>
+      <button id="btnFull" class="wide" type="button">全螢幕（再撳一次退出）</button>
     </section>
 
     <section id="buddy" aria-live="polite">
@@ -297,7 +298,7 @@ footer .ver a { color: var(--accent); }
         <label class="check"><input id="voice" type="checkbox">警報時加語音提示</label>
         <label class="check"><input id="preview" type="checkbox">顯示鏡頭畫面（隱藏後仍然會繼續偵測）</label>
         <label class="check"><input id="autoHide" type="checkbox">校準完成後自動隱藏鏡頭畫面</label>
-        <label class="check"><input id="fs" type="checkbox">開網頁後第一次點擊就自動全螢幕（iPhone 要用「加入主畫面」，見使用說明）</label>
+        <label class="check"><input id="fs" type="checkbox">開網頁後第一次點擊就自動全螢幕（實驗；Samsung 手機可能會彈出提示，建議用「加到主畫面」）</label>
         <label class="check"><input id="music" type="checkbox">警報第 2 次起自動播歌「前面有站」</label>
         <div class="row">
           <label for="musicVol">音樂音量</label><output id="oMusicVol">90%</output>
@@ -329,11 +330,17 @@ footer .ver a { color: var(--accent); }
         <div class="field">
           <label for="stt">聽你講嘢嘅方式</label>
           <select id="stt">
-            <option value="auto">自動（用 Groq 時走 Groq 雲端辨識，否則用瀏覽器）</option>
-            <option value="whisper">Groq 雲端辨識（Whisper，Android／iPhone 都較穩）</option>
-            <option value="browser">瀏覽器內置辨識</option>
+            <option value="auto">自動（用 Groq 或 Gemini 時，就用同一個服務聽）</option>
+            <option value="groq">Groq 雲端辨識（Whisper）</option>
+            <option value="gemini">Google Gemini 雲端辨識</option>
+            <option value="browser">瀏覽器內置辨識（Android／iPhone 常有問題）</option>
           </select>
-          <p class="hint">雲端辨識會將你講嘢嗰幾秒錄音傳去 Groq 轉成文字，用完即棄，唔會儲存喺本程式。需要填咗 Groq API key。</p>
+          <p class="hint">雲端辨識會將你講嘢嗰幾秒錄音傳去該服務轉成文字，Car Buddy 本身唔會儲存錄音。</p>
+        </div>
+        <div class="field" id="sttKeyRow" hidden>
+          <label for="sttKey">語音辨識專用 API key</label>
+          <input id="sttKey" class="txt" type="password" autocomplete="off" autocapitalize="none" spellcheck="false">
+          <p class="hint">只有「聽你講嘢」用嘅服務同上面「AI 供應商」唔同時先需要填（例如聊天用 OpenRouter，聽嘢用 Groq）。</p>
         </div>
         <div class="field" id="endpointRow" hidden>
           <label for="endpoint">API 網址（chat/completions）</label>
@@ -348,14 +355,14 @@ footer .ver a { color: var(--accent); }
   <footer>
     <p>呢個係輔助提示，唔可以代替休息。覺得疲倦就要停車休息。</p>
     <p>手機要固定穩陣先開始，行車時唔好操作螢幕。鏡頭畫面只喺手機入面處理，唔會上傳。</p>
-    <p>開啟 Buddy 傾偈後，你講嘅說話文字會傳送畀你揀嘅 AI 供應商；講嘢嗰幾秒嘅錄音會傳去 Groq（用 Groq 辨識時）或由瀏覽器語音服務處理；鏡頭畫面永遠唔會傳出去。</p>
+    <p>開啟 Buddy 傾偈後，你講嘅說話文字會傳送畀你揀嘅 AI 供應商；講嘢嗰幾秒嘅錄音會傳去 Groq 或 Google Gemini（雲端辨識時）或由瀏覽器語音服務處理；鏡頭畫面永遠唔會傳出去。</p>
     <p><a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>：你嘅樣貌只喺你部手機處理，唔會上傳或儲存喺任何伺服器。</p>
     <nav class="fnav" aria-label="說明頁面" title="呢啲頁面會喺新分頁打開，請喺停車後先睇">
       <a href="guide.html" target="_blank" rel="noopener">使用說明</a>
       <a href="report.html" target="_blank" rel="noopener">駕駛偵測報告</a>
       <a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>
     </nav>
-    <p class="ver">v1.5.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+    <p class="ver">v1.5.1 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
   </footer>
 </div>
 <noscript>呢個頁面需要 JavaScript。</noscript>
@@ -371,9 +378,9 @@ const $ = (id) => document.getElementById(id);
 const video = $("video"), overlay = $("overlay"), octx = overlay.getContext("2d");
 
 /* ---------- settings ---------- */
-// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
+// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.5.1 Gemini listening, WAV recording, key not shared across services, fullscreen opt-in button · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
 const CFG_KEY = "carbuddy.v2";
-const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", fs: true };
+const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", sttKey: "", fs2: false };
 let cfg = { ...defaults };
 try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch (e) {}
 const saveCfg = () => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} };
@@ -451,9 +458,21 @@ function bindSettings() {
   $("musicVol").oninput = (e) => { cfg.musicVol = +e.target.value; $("oMusicVol").textContent = cfg.musicVol + "%"; saveCfg(); };
   $("autoHide").checked = cfg.autoHide; $("wake").checked = cfg.wake;
   $("autoHide").onchange = (e) => { cfg.autoHide = e.target.checked; saveCfg(); };
-  $("fs").checked = cfg.fs; $("fs").onchange = (e) => { cfg.fs = e.target.checked; saveCfg(); if (cfg.fs) { fsTried = false; } };
-  $("stt").value = cfg.stt; $("stt").onchange = (e) => { cfg.stt = e.target.value; saveCfg(); };
+  $("fs").checked = cfg.fs2; $("fs").onchange = (e) => { cfg.fs2 = e.target.checked; saveCfg(); fsTried = false; };
+  const sttPaint = () => { const eng = sttEngine(); $("sttKeyRow").hidden = !(eng && cfg.provider !== eng.kind); };
+  $("stt").value = cfg.stt; $("stt").onchange = (e) => { cfg.stt = e.target.value; saveCfg(); sttPaint(); };
+  $("sttKey").value = cfg.sttKey; $("sttKey").oninput = (e) => { cfg.sttKey = e.target.value.trim(); saveCfg(); };
+  $("provider").addEventListener("change", sttPaint);
+  sttPaint();
   $("wake").onchange = async (e) => { cfg.wake = e.target.checked; saveCfg(); if (cfg.wake) await primeMic(); else wakeStop(); };
+  $("btnFull").onclick = () => {
+    const d = document, e = d.documentElement;
+    try {
+      if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); return; }
+      const f = e.requestFullscreen || e.webkitRequestFullscreen;
+      if (f) f.call(e); else addLine("系統", "呢個瀏覽器唔支援網頁全螢幕。iPhone 請用「加入主畫面」。");
+    } catch (x) {}
+  };
   $("btnCam").onclick = () => { cfg.preview = !cfg.preview; saveCfg(); applyPreview(); };
   let clearArmed = 0;
   $("btnClear").onclick = () => {
@@ -482,7 +501,7 @@ function placeTicks() {
 const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 let fsTried = false;
 function goFull() {
-  if (!cfg.fs || fsTried) return;
+  if (!cfg.fs2 || fsTried) return;
   const d = document, e = d.documentElement;
   if (d.fullscreenElement || d.webkitFullscreenElement || navigator.standalone) return;
   try { if (matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) return; } catch (x) {}
@@ -1056,54 +1075,96 @@ async function say(text) {
 }
 
 const GROQ_STT = "https://api.groq.com/openai/v1/audio/transcriptions";
-const useWhisper = () => cfg.stt === "whisper" || (cfg.stt === "auto" && cfg.provider === "groq");
+// which cloud service hears the driver: auto = the same service as the chat (Groq or Gemini); each needs its own key
+function sttEngine() {
+  const want = cfg.stt === "auto" ? (cfg.provider === "groq" || cfg.provider === "gemini" ? cfg.provider : "") : cfg.stt;
+  if (want !== "groq" && want !== "gemini") return null;
+  const key = ((cfg.provider === want ? cfg.apiKey : cfg.sttKey) || "").trim();
+  return key ? { kind: want, key } : { kind: want, key: "" };
+}
 async function micStream() {
   if (b.mic && b.mic.getAudioTracks().some((t) => t.readyState === "live")) return b.mic;
   b.mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
   return b.mic;
 }
 function micRelease() { if (b.mic) { try { b.mic.getTracks().forEach((t) => t.stop()); } catch (e) {} b.mic = null; } }
-async function transcribe(blob) {
-  const key = (cfg.apiKey || "").trim();
-  if (!key) throw new Error("未設定 API key");
-  const ext = /mp4/.test(blob.type) ? "m4a" : /ogg/.test(blob.type) ? "ogg" : "webm";
-  const fd = new FormData();
-  fd.append("file", blob, "speech." + ext);
-  fd.append("model", "whisper-large-v3-turbo");
-  fd.append("language", "zh");
-  fd.append("temperature", "0");
-  fd.append("response_format", "json");
-  fd.append("prompt", "以下係香港廣東話日常對話，用繁體中文書寫。");
-  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 12000);
-  try {
-    const r = await fetch(GROQ_STT, { method: "POST", headers: { Authorization: "Bearer " + key }, body: fd, signal: ctl.signal });
-    if (!r.ok) throw new Error("辨識 " + r.status + " " + (await r.text()).slice(0, 80));
-    const t = (((await r.json()).text) || "").trim();
-    if (!t || (t.length < 14 && /字幕|訂閱|Amara|謝謝觀看|thank(s| you)( for watching)?\.?$/i.test(t))) return null; // typical silence hallucinations
-    return t;
-  } catch (e) { if (e && e.name === "AbortError") throw new Error("辨識逾時"); throw e; }
+function wavFrom(chunks, rate) {
+  let n = 0; chunks.forEach((c) => { n += c.length; });
+  const step = rate / 16000, outN = Math.floor(n / step), pcm = new Int16Array(outN);
+  const flat = new Float32Array(n); let o = 0; chunks.forEach((c) => { flat.set(c, o); o += c.length; });
+  for (let i = 0; i < outN; i++) {
+    const a = Math.floor(i * step), z = Math.min(n, Math.floor((i + 1) * step)); let sum = 0, k = 0;
+    for (let x = a; x < z; x++) { sum += flat[x]; k++; }
+    const v = Math.max(-1, Math.min(1, k ? sum / k : 0));
+    pcm[i] = v < 0 ? v * 32768 : v * 32767;
+  }
+  const buf = new ArrayBuffer(44 + outN * 2), dv = new DataView(buf);
+  const w = (off, str) => { for (let i = 0; i < str.length; i++) dv.setUint8(off + i, str.charCodeAt(i)); };
+  w(0, "RIFF"); dv.setUint32(4, 36 + outN * 2, true); w(8, "WAVE"); w(12, "fmt "); dv.setUint32(16, 16, true);
+  dv.setUint16(20, 1, true); dv.setUint16(22, 1, true); dv.setUint32(24, 16000, true); dv.setUint32(28, 32000, true);
+  dv.setUint16(32, 2, true); dv.setUint16(34, 16, true); w(36, "data"); dv.setUint32(40, outN * 2, true);
+  new Int16Array(buf, 44).set(pcm);
+  return new Blob([buf], { type: "audio/wav" });
+}
+function blobB64(blob) {
+  return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = () => rej(new Error("讀取錄音失敗")); fr.readAsDataURL(blob); });
+}
+const BAD_STT = /字幕|訂閱|Amara|謝謝觀看|thank(s| you)( for watching)?\.?$/i;
+async function postTimed(url, init, ms) {
+  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), ms);
+  try { return await fetch(url, { ...init, signal: ctl.signal }); }
+  catch (e) { if (e && e.name === "AbortError") throw new Error("辨識逾時"); throw e; }
   finally { clearTimeout(to); }
 }
-// Records until the driver stops talking (simple loudness gate), then sends the clip to Groq Whisper.
-async function listenWhisper() {
+async function transcribe(blob, eng) {
+  if (!eng.key) throw new Error("未有 " + (eng.kind === "groq" ? "Groq" : "Gemini") + " API key");
+  if (eng.kind === "groq") {
+    const fd = new FormData();
+    fd.append("file", blob, "speech.wav");
+    fd.append("model", "whisper-large-v3-turbo");
+    fd.append("language", "zh"); fd.append("temperature", "0"); fd.append("response_format", "json");
+    fd.append("prompt", "以下係香港廣東話日常對話，用繁體中文書寫。");
+    const r = await postTimed(GROQ_STT, { method: "POST", headers: { Authorization: "Bearer " + eng.key }, body: fd }, 15000);
+    if (!r.ok) throw new Error("Groq 辨識 " + r.status + " " + (await r.text()).slice(0, 80));
+    const t = (((await r.json()).text) || "").trim();
+    return !t || (t.length < 14 && BAD_STT.test(t)) ? null : t;
+  }
+  const data = await blobB64(blob);
+  let lastErr = "";
+  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+    const body = {
+      contents: [{ parts: [
+        { text: "請逐字轉寫呢段錄音（香港廣東話，用繁體中文書寫）。只輸出轉寫出嚟嘅文字，唔好加任何解釋。如果冇人講嘢或者完全聽唔清，只輸出 EMPTY。" },
+        { inline_data: { mime_type: "audio/wav", data } },
+      ] }],
+      generationConfig: { temperature: 0, maxOutputTokens: 200, ...(model.includes("2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
+    };
+    const r = await postTimed("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent",
+      { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": eng.key }, body: JSON.stringify(body) }, 15000);
+    if (r.status === 404) { lastErr = "404"; continue; }
+    if (!r.ok) throw new Error("Gemini 辨識 " + r.status + " " + (await r.text()).slice(0, 80));
+    const j = await r.json();
+    const t = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || []).map((x) => x.text || "").join("")).trim();
+    return !t || /^EMPTY\b/i.test(t) || (t.length < 14 && BAD_STT.test(t)) ? null : t.replace(/^["「]|["」]$/g, "");
+  }
+  throw new Error("Gemini 辨識模型用唔到 " + lastErr);
+}
+// Records PCM until the driver stops talking (simple loudness gate), makes a 16 kHz WAV and sends it to the cloud service.
+async function listenCloud(eng) {
   const talkBtn = $("btnTalk");
-  if (typeof MediaRecorder === "undefined") throw new Error("呢部手機唔支援錄音");
   const stream = await micStream();
   ensureAudio();
-  const mime = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm", "audio/ogg;codecs=opus"].find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || "";
-  const src = actx.createMediaStreamSource(stream), an = actx.createAnalyser();
-  an.fftSize = 1024; src.connect(an);
+  const src = actx.createMediaStreamSource(stream), an = actx.createAnalyser(), proc = actx.createScriptProcessor(4096, 1, 1), mute = actx.createGain();
+  an.fftSize = 1024; mute.gain.value = 0;
   const buf = new Float32Array(an.fftSize), chunks = [];
-  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
-  rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-  const stopped = new Promise((r) => { rec.onstop = r; });
+  proc.onaudioprocess = (e) => { chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
+  src.connect(an); src.connect(proc); proc.connect(mute); mute.connect(actx.destination);
   let speechAt = 0, lastLoud = 0, force = false, cancelled = false, peak = 0, noise = 0.008;
   const calib = [], t0 = performance.now();
   b.cancel = () => { cancelled = true; };
   b.tap = () => { force = true; };
   talkBtn.hidden = false;
   try {
-    rec.start(250);
     await new Promise((done) => {
       const iv = setInterval(() => {
         an.getFloatTimeDomainData(buf);
@@ -1120,28 +1181,25 @@ async function listenWhisper() {
       }, 100);
     });
   } finally {
-    try { if (rec.state !== "inactive") rec.stop(); } catch (e) {}
-    await Promise.race([stopped, sleep(1500)]);
-    try { src.disconnect(); } catch (e) {}
+    proc.onaudioprocess = null;
+    try { src.disconnect(); proc.disconnect(); mute.disconnect(); } catch (e) {}
     talkBtn.hidden = true; b.cancel = null; b.tap = null;
     if (!IOS) micRelease(); // Android: free the mic so Buddy's voice plays at full volume
   }
   if (cancelled) return null;
-  if (!speechAt && !force) {
-    if (peak < 0.003) noteListen("mic-silent");
-    return null;
-  }
-  const blob = new Blob(chunks, { type: rec.mimeType || mime || "audio/webm" });
-  if (blob.size < 1500) return null;
+  if (!speechAt && !force) { if (peak < 0.003) noteListen("mic-silent"); return null; }
+  const blob = wavFrom(chunks, actx.sampleRate);
+  if (blob.size < 6000) return null;
   setBuddy("辨識緊…");
-  return await transcribe(blob);
+  return await transcribe(blob, eng);
 }
 async function listen() {
-  if (useWhisper() && !b.sttFailed) {
-    try { return await listenWhisper(); }
+  const eng = sttEngine();
+  if (eng && !b.sttFailed) {
+    try { return await listenCloud(eng); }
     catch (e) {
       b.sttFailed = true;
-      addLine("系統", "雲端語音辨識失敗，改用瀏覽器辨識：" + String((e && e.message) || e).slice(0, 80));
+      addLine("系統", "雲端語音辨識失敗，改用瀏覽器辨識：" + String((e && e.message) || e).slice(0, 90));
     }
   }
   return listenBrowser();
