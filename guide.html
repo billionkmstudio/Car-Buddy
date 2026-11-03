@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1113">
+<title>使用說明書 · Car Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e1113; --panel: #161a1d; --line: #262d32; --text: #e9edef; --muted: #8c979e; --accent: #8cc7ff;
+  --ok: #3ddc97; --warn: #ffb02e; --danger: #ff5a5f;
+  --ok-bg: #122520; --ok-line: #1f4a3b; --warn-bg: #2a2110; --warn-line: #5e4616; --danger-bg: #3b1518; --danger-line: #7a2a2e;
+  --f-body: "Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-num: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text); font-family: var(--f-body); font-size: 16px; line-height: 1.75;
+  padding-block: max(14px, env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+a { color: var(--accent); }
+header.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; }
+.brand .logo {
+  font-family: "Racing Sans One", Impact, "Arial Black", sans-serif; font-size: 1.9rem; line-height: 1; letter-spacing: .03em; text-transform: uppercase;
+  background: linear-gradient(100deg, #8cc7ff 0%, #c7e3ff 38%, #ffcf6b 72%, #ff6b6f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(140, 199, 255, .35)); padding-right: .08em; transform: skewX(-4deg);
+}
+.brand small { font-weight: 500; color: var(--muted); font-size: .85rem; letter-spacing: .06em; }
+.back { font-size: .92rem; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: clamp(1.7rem, 6vw, 2.3rem); line-height: 1.25; margin: .4em 0 .3em; text-wrap: balance; }
+h2 { font-size: 1.35rem; line-height: 1.35; margin: 2.2em 0 .4em; padding-top: 1em; border-top: 1px solid var(--line); scroll-margin-top: 12px; text-wrap: balance; }
+h3 { font-size: 1.08rem; margin: 1.6em 0 .2em; }
+p { margin: .6em 0; }
+ul, ol { padding-left: 1.3em; margin: .5em 0; }
+li { margin: .3em 0; }
+.lead { color: var(--muted); font-size: 1.02rem; }
+.meta { color: var(--muted); font-size: .88rem; }
+.toc { display: grid; gap: 2px 18px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin: 1.2em 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); list-style: none; }
+.toc li { margin: 0; }
+.toc a { text-decoration: none; display: block; padding: 3px 0; }
+.toc a:hover { text-decoration: underline; }
+code, kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; margin: .8em 0; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 540px; font-size: .92rem; line-height: 1.55; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; background: var(--panel); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 1.05rem; letter-spacing: .03em; }
+.callout { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 10px 16px; margin: 1.1em 0; }
+.callout p { margin: .35em 0; }
+.callout.ok { background: var(--ok-bg); border-color: var(--ok-line); }
+.callout.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.callout.danger { background: var(--danger-bg); border-color: var(--danger-line); }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps li { counter-increment: s; position: relative; padding-left: 2.4em; margin: .8em 0; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: .12em; width: 1.7em; height: 1.7em; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: var(--f-num); font-size: 1.05rem; line-height: 1.55em; text-align: center; }
+button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 44px; padding: 8px 16px; cursor: pointer; }
+button:hover { border-color: #3a444b; }
+button.danger { color: var(--danger); border-color: var(--danger-line); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+footer { margin-top: 3em; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; line-height: 1.7; }
+footer p { margin: .3em 0; }
+footer nav { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98rem; margin-top: .8em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="./" aria-label="Car Buddy 疲勞守護"><span class="logo">Car Buddy</span><small>疲勞守護</small></a>
+  <a class="back" href="./">← 返回 Car Buddy</a>
+</header>
+
+<main>
+<h1>Car Buddy 使用說明書</h1>
+<p class="lead">由第一次開機、校準，到設定 AI 聊天 API，一步步講清楚。</p>
+<p class="meta">版本 v1.4.0</p>
+
+<ol class="toc">
+  <li><a href="#safety">0. 先睇：安全提示</a></li>
+  <li><a href="#start">1. 開始用</a></li>
+  <li><a href="#cal">2. 校準（最重要）</a></li>
+  <li><a href="#cam">3. 隱藏鏡頭畫面</a></li>
+  <li><a href="#levels">4. 警告分幾級</a></li>
+  <li><a href="#settings">5. 設定逐項講</a></li>
+  <li><a href="#api">6. AI 聊天 API 設定</a></li>
+  <li><a href="#chat">7. 同 Buddy 傾偈</a></li>
+  <li><a href="#music">8. 音樂</a></li>
+  <li><a href="#report">9. 駕駛偵測報告</a></li>
+  <li><a href="#mount">10. 手機擺放</a></li>
+  <li><a href="#trouble">11. 常見問題</a></li>
+</ol>
+
+<h2 id="safety">0. 先睇：安全提示</h2>
+<div class="callout danger">
+  <p><strong>Car Buddy 只係輔助提示，唔可以代替休息。</strong>一收到警告，就要揀安全地方停車。唔好用佢嚟「撐」長途駕駛。</p>
+  <p>行駛途中唔好望住手機或撳掣。設定、校準同睇報告，請喺停好車時做。</p>
+</div>
+
+<h2 id="start">1. 開始用</h2>
+<ol class="steps">
+  <li>用手機 Chrome（Android）或 Safari（iPhone）打開 Car Buddy 網址。</li>
+  <li>撳「<strong>開始偵測</strong>」，瀏覽器問鏡頭權限時揀「允許」。</li>
+  <li>首次載入 AI 模型需要網絡，大約幾秒到十幾秒。</li>
+  <li>坐好、面向鏡頭，睇到畫面有你，就等佢自動校準；之後想重做就撳「<strong>重新校準</strong>」。</li>
+  <li>校準完成後，撳「<strong>隱藏鏡頭畫面</strong>」（可選），然後將手機固定好就可以出發。</li>
+  <li>完結行程撳「<strong>停用偵測</strong>」。</li>
+</ol>
+<p>建議第一次先喺停好嘅車入面撳「<strong>測試警報</strong>」，確認聲音夠大、你聽得到。</p>
+
+<h2 id="cal">2. 校準（最重要）</h2>
+<p>每個人眼睛大細、坐姿都唔同。校準會記低你<strong>正常清醒</strong>時嘅眼睛張開程度同頭部角度，之後所有判斷都係同「你自己嘅基準」比較。</p>
+<ul>
+  <li>校準時請<strong>望住前方路面嘅方向、眼睛自然張開</strong>，唔好特登瞪大眼。</li>
+  <li>光線要夠，避免強烈背光（例如面後係大窗）。</li>
+  <li>換咗人駕駛、換咗手機位置、戴／除太陽眼鏡，都要重新校準。</li>
+  <li>太陽眼鏡深色會令眼睛偵測失準；一般透明眼鏡通常冇問題。</li>
+</ul>
+
+<h2 id="cam">3. 隱藏鏡頭畫面</h2>
+<p>校準成功後，你唔使再望住自己個樣。撳「<strong>隱藏鏡頭畫面</strong>」，畫面收埋，騰出空間顯示狀態同掣。</p>
+<ul>
+  <li>隱藏只係唔顯示影像，<strong>偵測同鏡頭照常運作</strong>，警報、Buddy 同音樂都唔受影響。</li>
+  <li>想重新睇畫面（例如檢查自己有冇企出畫面），撳「顯示鏡頭畫面」。</li>
+  <li>設定入面有「校準完成後自動隱藏鏡頭畫面」，剔選後唔使每次手動撳。</li>
+</ul>
+
+<h2 id="levels">4. 警告分幾級</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>情況</th><th>系統反應</th></tr></thead>
+  <tbody>
+    <tr><td>輕微：眨眼變慢、打吹欠</td><td>畫面提示，並記入行程</td></tr>
+    <tr><td>中度：閉眼比例（PERCLOS）升高</td><td>提醒聲，Buddy 可能主動同你傾偈</td></tr>
+    <tr><td>危險：長時間閉眼、頭部低垂、閉眼比例太高</td><td>大聲警報＋震動（Android）＋語音「喂！醒呀，醒呀！…」，並記入報告</td></tr>
+  </tbody>
+</table></div>
+<p>PERCLOS = 最近 60 秒內，眼睛接近閉合所佔嘅時間比例，係業界常用嘅疲倦指標。</p>
+
+<h2 id="settings">5. 設定逐項講</h2>
+<p>撳主頁最底嘅「設定」展開。</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>設定</th><th>點用</th></tr></thead>
+  <tbody>
+    <tr><td>靈敏度 1–9</td><td>數字越大越易觸發警告。若成日誤報（例如你眼細），調低 1–2 級；若覺得反應遲，調高。行車前先喺安全地方試。</td></tr>
+    <tr><td>閉眼多久先響警報</td><td>0.8–2.5 秒，預設 1.2 秒。越短越敏感。</td></tr>
+    <tr><td>警報音量</td><td>撳「測試警報」同步聽。手機本身嘅音量都要調高，並要喺行車噪音下仍然清楚。</td></tr>
+    <tr><td>偵測上限</td><td>8 / 12 / 15 fps。8 較慳電，15 較準。手機發熱時可以降低。</td></tr>
+    <tr><td>警報時加語音提示</td><td>警報時念出「喂！醒呀，醒呀！…」。需要手機有中文語音，見第 11 節。</td></tr>
+    <tr><td>顯示鏡頭畫面</td><td>取消剔選即係隱藏，偵測照常。同主頁「隱藏鏡頭畫面」掣一樣。</td></tr>
+    <tr><td>校準完成後自動隱藏鏡頭畫面</td><td>見第 3 節。</td></tr>
+    <tr><td>警報第 2 次起自動播歌「前面有站」</td><td>見第 8 節。</td></tr>
+    <tr><td>音樂音量</td><td>警報同 Buddy 講嘢時音樂會自動收細。</td></tr>
+    <tr><td>疲倦時自動同我傾偈（Buddy）</td><td>開啟後，疲倦或警報後 Buddy 會主動開口。需要 API 先有 AI 回應，見第 6 節。</td></tr>
+    <tr><td>語音喚醒（實驗）</td><td>講「Buddy」就開始傾偈，有限制，見第 7 節。</td></tr>
+    <tr><td>AI 供應商 / API key / 模型名稱 / API 網址</td><td>見第 6 節。API 網址只有揀「自訂」時出現。</td></tr>
+    <tr><td>清除所有本機資料</td><td>刪除設定、API key 同全部駕駛報告，要撳兩次確認。</td></tr>
+  </tbody>
+</table></div>
+<p class="meta">Android 手機會喺危險警報時震動；iPhone 瀏覽器唔支援網頁震動。</p>
+
+<h2 id="api">6. AI 聊天 API 設定</h2>
+<p>Buddy 嘅聊天需要一個 AI 服務。佢<strong>唔係必須</strong>：冇填 API，警報、偵測、音樂都照用，而 Buddy 會用內置嘅固定句子提示你。</p>
+
+<h3>6.1 API Key 係咩？</h3>
+<p>API Key 係一串密碼式文字，等 AI 服務知道係你喺用。Car Buddy 會用你嘅 Key 向該服務發出聊天請求。Key 只存喺你部手機，詳見<a href="privacy.html">私隱政策</a>。</p>
+
+<h3>6.2 揀邊個服務</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>服務</th><th>特點</th><th>申請位置</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Groq</strong>（預設，推薦）</td><td>反應快，有免費額度；對話延遲低，最適合車上</td><td>console.groq.com → API Keys</td></tr>
+    <tr><td>Google Gemini</td><td>有免費額度，廣東話表現好</td><td>aistudio.google.com → Get API key</td></tr>
+    <tr><td>OpenRouter</td><td>一個 Key 用多個模型，部分模型免費</td><td>openrouter.ai → Keys</td></tr>
+    <tr><td>Mistral</td><td>有免費方案</td><td>console.mistral.ai</td></tr>
+    <tr><td>自訂</td><td>任何兼容 OpenAI <code>/chat/completions</code> 格式嘅服務</td><td>自行填網址、Key、模型名</td></tr>
+  </tbody>
+</table></div>
+<p class="meta">免費額度同可用模型會不時改變，以各服務官方網站為準。</p>
+
+<h3>6.3 設定步驟（以 Groq 為例）</h3>
+<ol class="steps">
+  <li>用電腦或手機瀏覽器去 <code>console.groq.com</code> 註冊並登入。</li>
+  <li>去「API Keys」→「Create API Key」，複製出現嘅文字（通常以 <code>gsk_</code> 開頭）。Key 只會顯示一次，請即時複製。</li>
+  <li>返到 Car Buddy 設定，「AI 服務」揀 Groq，將 Key 貼入「API Key」欄。</li>
+  <li>「模型」留空使用預設；如果你想自選，填模型名稱。</li>
+  <li>撳主頁「<strong>測試語音</strong>」確認聽到聲，再撳「<strong>同 Buddy 傾偈</strong>」。成功會見到 Buddy 回覆並聽到語音。</li>
+</ol>
+
+<h3>6.4 出錯時點算</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>見到</th><th>原因</th><th>處理</th></tr></thead>
+  <tbody>
+    <tr><td>401 / 403</td><td>Key 貼錯、過期或被停用</td><td>重新複製貼上，檢查前後有冇多咗空格</td></tr>
+    <tr><td>404 / model not found</td><td>模型已下架或改名</td><td>清空模型欄；系統會嘗試向服務查詢可用模型並自動改用</td></tr>
+    <tr><td>429</td><td>超過免費額度或太頻密</td><td>等一陣，或轉另一個服務</td></tr>
+    <tr><td>網絡錯誤</td><td>手機冇網絡或訊號弱</td><td>Buddy 會改用內置句子，警報唔受影響</td></tr>
+    <tr><td>有文字冇聲音</td><td>手機冇中文語音</td><td>安裝 Google 粵語語音，見第 11 節</td></tr>
+  </tbody>
+</table></div>
+<div class="callout warn">
+  <p><strong>留意：</strong>聊天內容（文字）會經網絡傳去你揀嘅 AI 服務；鏡頭畫面<strong>唔會</strong>。行車時流動數據用量好少，但訊號差時會有延遲。</p>
+</div>
+
+<h2 id="chat">7. 同 Buddy 傾偈</h2>
+<h3>7.1 Buddy 主動開口</h3>
+<p>當系統偵測到中度疲倦，或者危險警報之後，Buddy 會用廣東話同你簡短傾偈，保持你清醒。每句約 40 字以內，並一定會提醒你要停車休息。</p>
+
+<h3>7.2 你主動叫 Buddy（唔使等系統）</h3>
+<ul>
+  <li><strong>撳掣：</strong>Buddy 區塊嘅「同 Buddy 傾偈」。撳咗 Buddy 即刻開口，你可以用語音答佢。</li>
+  <li><strong>叫名（實驗）：</strong>喺設定剔選「語音喚醒（實驗）」後，直接講「Buddy」就會開始。</li>
+</ul>
+<div class="callout warn">
+  <p><strong>「叫 Buddy」係實驗功能，有以下限制：</strong></p>
+  <ul>
+    <li>佢要不停聽你講嘢，會多用電同流動數據，聲音會交畀手機嘅語音辨識服務處理（見私隱政策）。</li>
+    <li>Android Chrome 每次重新啟動辨識可能會有「叮」一聲。</li>
+    <li>iPhone Safari 對持續語音辨識支援唔穩定，建議用撳掣方式。</li>
+    <li>車內噪音大時辨識會唔準。</li>
+  </ul>
+</div>
+
+<h3>7.3 音樂同聊天會唔會互相取代？</h3>
+<ul>
+  <li>音樂播放期間，系統<strong>唔會自動開口</strong>傾偈，避免同歌聲重疊。</li>
+  <li>但你<strong>隨時可以主動</strong>撳「同 Buddy 傾偈」或叫「Buddy」。呢個時候音樂會自動暫停俾 Buddy 講，傾完可以撳「繼續播歌」。</li>
+  <li>危險警報一定優先：警報響起時音樂靜音，警報完先返回。</li>
+</ul>
+
+<h2 id="music">8. 音樂</h2>
+<ul>
+  <li>可以撳「播放音樂」手動播放。</li>
+  <li>設定剔選「警報第 2 次起自動播歌」後，同一程出現<strong>第 2 次危險警報</strong>就會自動播放。</li>
+  <li>音樂淡入。Buddy 講嘢時音量自動收細。播放時每 4 分鐘會提醒你休息，10 分鐘後自動暫停。</li>
+  <li><strong>暫停音樂：</strong>只有音樂播放時，先會出現「暫停音樂」掣。撳咗只係停歌，<strong>偵測繼續運作</strong>，直到你撳「停用偵測」。暫停後掣會變成「繼續播歌」。</li>
+  <li>語音指令：講「播歌」「停歌」亦可以（需要語音辨識已開啟）。</li>
+  <li>歌曲檔 <code>前面有站.mp3</code> 須與網頁檔放喺同一資料夾。</li>
+</ul>
+
+<h2 id="report">9. 駕駛偵測報告</h2>
+<p>每次行程中，只要系統曾經發出過<strong>警告或警報</strong>，就會自動記錄成一程。沒有警告嘅行程唔會記。</p>
+<ul>
+  <li>入口：主頁頁尾「駕駛偵測報告」連結。</li>
+  <li>內容：日期時間、行程長度、警告次數、最長閉眼時間、PERCLOS 峰值，同埋逐項時間線。</li>
+  <li>「易眼瞓時段」會幫你睇出係行車第幾分鐘、一日中邊個鐘數較常出事，方便你安排休息。</li>
+  <li>資料只在你部手機，最多 60 程；可喺報告頁清除。</li>
+</ul>
+<p>建議：每星期睇一次。如果警報多數出現喺同一時段，就預早喺嗰段時間前安排休息站或換人駕駛。</p>
+
+<h2 id="mount">10. 手機擺放</h2>
+<ul>
+  <li>前置鏡頭要<strong>清楚見到你張臉</strong>，高度大約同眼睛差不多或略低，避免仰角影到鼻孔。</li>
+  <li>用穩固嘅車用支架，唔好阻擋視線。</li>
+  <li>避免陽光直射鏡頭同臉上強烈光影交替（例如行經樹蔭）。</li>
+  <li>手機要充電：持續用鏡頭同 AI 好耗電。</li>
+  <li>手機過熱時系統可能降速，請留意散熱。</li>
+</ul>
+
+<h2 id="trouble">11. 常見問題</h2>
+<h3>鏡頭畫面黑色或者冇畫面</h3>
+<p>檢查瀏覽器有冇允許鏡頭；關閉其他正使用鏡頭嘅 App；重新撳開始偵測。</p>
+<h3>一直誤報</h3>
+<p>重新校準；降低靈敏度；改善光線；確認眼鏡冇反光。</p>
+<h3>反應太遲</h3>
+<p>提高靈敏度；確認校準時冇瞪大眼；確保面部在畫面中央。</p>
+<h3>Buddy 有字但唔出聲</h3>
+<p>手機冇中文語音。去 Android「設定 → 一般管理／輔助功能 → 文字轉語音輸出」，安裝或揀「Google 語音」並下載粵語（香港）。</p>
+<h3>iPhone 上有咩唔同</h3>
+<p>iPhone 唔支援網頁震動；背景或螢幕鎖定時瀏覽器會暫停偵測，請保持螢幕開住並將頁面放前景；持續語音辨識唔穩定。</p>
+<h3>打開使用說明／報告後偵測停咗</h3>
+<p>行駛中開新分頁會令偵測頁變背景，瀏覽器可能減速甚至暫停。請喺停好車時睇呢啲頁面，回到主頁確認偵測仍然運作。</p>
+<h3>點樣完全清除我嘅資料</h3>
+<p>設定最底「清除所有本機資料」，或在手機瀏覽器清除本網站嘅儲存資料。</p>
+<h3>聯絡</h3>
+<p><a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+</main>
+
+<footer>
+  <nav aria-label="頁面">
+    <a href="./">主頁</a>
+    <a href="guide.html">使用說明</a>
+    <a href="report.html">駕駛偵測報告</a>
+    <a href="privacy.html">私隱政策</a>
+  </nav>
+  <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
+  <p class="ver">v1.4.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+</footer>
+</div>
+
+</body>
+</html>

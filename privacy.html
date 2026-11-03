@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1113">
+<title>私隱政策 · Car Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e1113; --panel: #161a1d; --line: #262d32; --text: #e9edef; --muted: #8c979e; --accent: #8cc7ff;
+  --ok: #3ddc97; --warn: #ffb02e; --danger: #ff5a5f;
+  --ok-bg: #122520; --ok-line: #1f4a3b; --warn-bg: #2a2110; --warn-line: #5e4616; --danger-bg: #3b1518; --danger-line: #7a2a2e;
+  --f-body: "Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-num: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text); font-family: var(--f-body); font-size: 16px; line-height: 1.75;
+  padding-block: max(14px, env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+a { color: var(--accent); }
+header.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; }
+.brand .logo {
+  font-family: "Racing Sans One", Impact, "Arial Black", sans-serif; font-size: 1.9rem; line-height: 1; letter-spacing: .03em; text-transform: uppercase;
+  background: linear-gradient(100deg, #8cc7ff 0%, #c7e3ff 38%, #ffcf6b 72%, #ff6b6f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(140, 199, 255, .35)); padding-right: .08em; transform: skewX(-4deg);
+}
+.brand small { font-weight: 500; color: var(--muted); font-size: .85rem; letter-spacing: .06em; }
+.back { font-size: .92rem; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: clamp(1.7rem, 6vw, 2.3rem); line-height: 1.25; margin: .4em 0 .3em; text-wrap: balance; }
+h2 { font-size: 1.35rem; line-height: 1.35; margin: 2.2em 0 .4em; padding-top: 1em; border-top: 1px solid var(--line); scroll-margin-top: 12px; text-wrap: balance; }
+h3 { font-size: 1.08rem; margin: 1.6em 0 .2em; }
+p { margin: .6em 0; }
+ul, ol { padding-left: 1.3em; margin: .5em 0; }
+li { margin: .3em 0; }
+.lead { color: var(--muted); font-size: 1.02rem; }
+.meta { color: var(--muted); font-size: .88rem; }
+.toc { display: grid; gap: 2px 18px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin: 1.2em 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); list-style: none; }
+.toc li { margin: 0; }
+.toc a { text-decoration: none; display: block; padding: 3px 0; }
+.toc a:hover { text-decoration: underline; }
+code, kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; margin: .8em 0; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 540px; font-size: .92rem; line-height: 1.55; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; background: var(--panel); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 1.05rem; letter-spacing: .03em; }
+.callout { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 10px 16px; margin: 1.1em 0; }
+.callout p { margin: .35em 0; }
+.callout.ok { background: var(--ok-bg); border-color: var(--ok-line); }
+.callout.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.callout.danger { background: var(--danger-bg); border-color: var(--danger-line); }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps li { counter-increment: s; position: relative; padding-left: 2.4em; margin: .8em 0; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: .12em; width: 1.7em; height: 1.7em; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: var(--f-num); font-size: 1.05rem; line-height: 1.55em; text-align: center; }
+button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 44px; padding: 8px 16px; cursor: pointer; }
+button:hover { border-color: #3a444b; }
+button.danger { color: var(--danger); border-color: var(--danger-line); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+footer { margin-top: 3em; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; line-height: 1.7; }
+footer p { margin: .3em 0; }
+footer nav { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98rem; margin-top: .8em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="./" aria-label="Car Buddy 疲勞守護"><span class="logo">Car Buddy</span><small>疲勞守護</small></a>
+  <a class="back" href="./">← 返回 Car Buddy</a>
+</header>
+
+<main>
+<h1>私隱政策</h1>
+<p class="lead">Car Buddy 要用前置鏡頭睇住你嘅樣貌先可以偵測疲倦，所以我哋將「你嘅樣貌去咗邊」講清楚。</p>
+<p class="meta">最後更新：2026 年 11 月 · 版本 v1.4.0</p>
+
+<div class="callout ok">
+  <p><strong>一句講晒：</strong>鏡頭畫面只喺你部手機嘅記憶體入面即時分析，唔會錄影、唔會儲存、唔會上傳。Billion Studio 冇任何伺服器會收到你嘅樣貌。</p>
+</div>
+
+<h2 id="face">1. 你嘅樣貌：只喺你部手機入面處理</h2>
+<ul>
+  <li>偵測用嘅 AI（MediaPipe Face Landmarker）係下載到你部手機嘅瀏覽器入面運行，所有分析喺手機本機完成。</li>
+  <li>鏡頭每一格畫面分析完就即刻丟棄，<strong>唔會錄影、唔會影相、唔會截圖、唔會寫入手機儲存空間</strong>。</li>
+  <li>分析之後只剩幾個數字（例如眼睛張開程度、打吹欠程度、頭部角度），用嚟判斷你係咪眼瞓。呢啲數字都只留喺手機記憶體，關閉頁面就消失。</li>
+  <li>畫面上睇到嘅鏡頭影像只係畫喺你自己嘅螢幕，冇傳送去任何地方。你可以隨時撳主頁「隱藏鏡頭畫面」，偵測照常，只係唔再顯示。</li>
+</ul>
+
+<h2 id="stored">2. 會儲存喺你手機嘅資料</h2>
+<p>以下資料用瀏覽器嘅本機儲存（localStorage）放喺<strong>你自己部手機</strong>，唔會傳送俾 Billion Studio：</p>
+<div class="table-wrap"><table>
+  <thead><tr><th>資料</th><th>用途</th><th>點樣刪除</th></tr></thead>
+  <tbody>
+    <tr><td>偵測設定（靈敏度、音量、音樂開關等）</td><td>下次開啟唔使重新設定</td><td>設定最底「清除所有本機資料」</td></tr>
+    <tr><td>AI 聊天 API Key 同你揀嘅服務／模型</td><td>俾 Buddy 開口傾偈</td><td>主頁清除，或或喺設定清空 API key 欄</td></tr>
+    <tr><td>駕駛偵測報告（只記錄曾發出警告嘅行程：時間、警告類型、閉眼時間、PERCLOS 峰值）</td><td>俾你自己事後翻睇</td><td>報告頁「清除全部記錄」</td></tr>
+  </tbody>
+</table></div>
+<p>報告<strong>唔包含任何相片或影片</strong>，只有時間同數字。最多保留最近 60 程。</p>
+
+<h2 id="network">3. 會連去外面嘅部分</h2>
+<p>Car Buddy 係靜態網頁，冇登入、冇帳戶、冇我哋嘅資料庫。但為咗運作，你部手機會向第三方下載或傳送以下內容：</p>
+<ul>
+  <li><strong>載入偵測程式同模型</strong>：由 jsDelivr（程式庫）同 Google Cloud Storage（人臉模型檔）下載。呢個係「下載」，唔會上載你嘅畫面。同所有網站一樣，對方會見到你嘅 IP 位址同瀏覽器資料。</li>
+  <li><strong>字體</strong>：由 Google Fonts 下載。</li>
+  <li><strong>Buddy 聊天（可選）</strong>：只有當你自己填咗 API Key 並開啟聊天，系統先會將<strong>一小段文字</strong>（例如「司機而家好眼瞓」同你講過嘅說話文字）傳去你揀嘅 AI 服務（Groq、Google Gemini、OpenRouter、Mistral 或自訂）。<strong>傳送嘅係文字，唔係鏡頭畫面，亦唔係你嘅樣貌。</strong>你所用服務點處理呢啲文字，受該服務自己嘅私隱政策規管。</li>
+  <li><strong>語音輸入（可選）</strong>：「同 Buddy 傾偈」同「叫 Buddy」會用手機瀏覽器內置嘅語音辨識。喺 Android Chrome，呢個功能通常會將你嘅聲音交畀 Google 嘅語音服務處理；喺 iPhone 則由 Apple 處理。請留意你部手機同瀏覽器嘅相關私隱設定。唔想用就唔好撳「同 Buddy 傾偈」，亦唔好剔選「語音喚醒」。</li>
+  <li><strong>語音朗讀</strong>：使用手機本身嘅語音引擎，一般唔需要上載。</li>
+</ul>
+
+<h2 id="server">4. 我哋有冇伺服器儲存你嘅資料？</h2>
+<p>冇。Car Buddy 冇用戶帳戶、冇雲端資料庫，我哋亦冇任何程式會收集你嘅樣貌、偵測結果、行程記錄或 API Key。</p>
+<p class="meta">補充：任何網站嘅寄存服務商，通常都會有標準嘅伺服器存取記錄（例如連線時間、IP 位址、瀏覽器種類）。呢啲係寄存層面嘅一般記錄，同你嘅樣貌或偵測內容無關。</p>
+
+<h2 id="camera">5. 鏡頭權限</h2>
+<p>瀏覽器會喺你撳「開始偵測」時先問你可唔可以用鏡頭。你隨時可以：</p>
+<ul>
+  <li>撳「停用偵測」，鏡頭即刻關閉；</li>
+  <li>喺手機瀏覽器嘅網站設定收回鏡頭權限。</li>
+</ul>
+
+<h2 id="api">6. 關於 API Key 嘅安全</h2>
+<ul>
+  <li>Key 只存喺你部手機，只會傳送去你自己揀嘅 AI 服務。</li>
+  <li>請用免費或有用量上限嘅 Key，唔好同人分享你部手機嘅瀏覽器資料。</li>
+  <li>如果懷疑外洩，去該服務嘅後台刪除舊 Key 再建立新嘅。</li>
+</ul>
+
+<h2 id="kids">7. 兒童</h2>
+<p>Car Buddy 係俾司機使用，並非為兒童而設。</p>
+
+<h2 id="change">8. 政策更新</h2>
+<p>功能有重大改變（例如日後加入雲端功能）時，我哋會更新呢頁並提升版本號；任何會上傳樣貌嘅功能，一定會先要你明確同意。</p>
+
+<h2 id="contact">9. 聯絡我哋</h2>
+<p>有任何私隱問題，請電郵 <a href="mailto:info@billionstudio.app">info@billionstudio.app</a>。</p>
+</main>
+
+<footer>
+  <nav aria-label="頁面">
+    <a href="./">主頁</a>
+    <a href="guide.html">使用說明</a>
+    <a href="report.html">駕駛偵測報告</a>
+    <a href="privacy.html">私隱政策</a>
+  </nav>
+  <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
+  <p class="ver">v1.4.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+</footer>
+</div>
+
+</body>
+</html>

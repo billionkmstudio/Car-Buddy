@@ -7,7 +7,7 @@
 <title>Car Buddy 疲勞守護</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
 <style>
 /* Layout: one-screen instrument panel. Portrait = single column (status, camera, gauges, controls).
    Landscape = camera + controls left, status + gauges + log right. Dark only, made for in-car night use. */
@@ -43,8 +43,18 @@ body {
 }
 .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 14px; }
 header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.brand { font-family: var(--f-num); font-weight: 600; letter-spacing: .18em; font-size: 1.05rem; text-transform: uppercase; }
-.brand small { font-family: var(--f-body); letter-spacing: .04em; font-weight: 500; color: var(--muted); font-size: .85rem; text-transform: none; margin-left: 8px; }
+.brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; min-width: 0; }
+.brand .logo {
+  font-family: "Racing Sans One", Impact, "Arial Black", sans-serif; font-size: 2.1rem; line-height: 1; letter-spacing: .03em; text-transform: uppercase;
+  background: linear-gradient(100deg, #8cc7ff 0%, #c7e3ff 38%, #ffcf6b 72%, #ff6b6f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(140, 199, 255, .35));
+  padding-right: .08em; transform: skewX(-4deg);
+}
+.brand small { font-family: var(--f-body); letter-spacing: .06em; font-weight: 500; color: var(--muted); font-size: .85rem; text-transform: none; }
+.nav { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: .9rem; }
+.nav a { color: var(--accent); text-decoration: none; padding: 6px 0; }
+.nav a:hover { text-decoration: underline; }
 .engine { font-family: var(--f-num); font-size: .95rem; letter-spacing: .08em; color: var(--muted); text-align: right; }
 
 main {
@@ -97,6 +107,14 @@ body[data-level="2"] .flash { border-width: 8px; animation: flash .6s steps(2, j
 #camMsg { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: .95rem; }
 #cam.live #camMsg { display: none; }
 #cam.off.live #camMsg { display: grid; }
+/* hidden camera: the video keeps running as a 4px dot so detection continues, and the space goes to the status panel */
+#cam.mini { position: fixed; right: 0; bottom: 0; width: 4px; height: 4px; opacity: .02; pointer-events: none; border: 0; border-radius: 0; aspect-ratio: auto; z-index: -1; }
+body.cam-off main { grid-template-areas: "status" "gauges" "controls" "buddy" "log" "settings"; }
+@media (orientation: landscape) and (min-width: 700px) {
+  body.cam-off main { grid-template-areas: "status gauges" "controls buddy" "log log" "settings settings"; }
+}
+body.cam-off #stWord { font-size: clamp(3.4rem, 19vw, 6.4rem); }
+body.cam-off #statusPanel { padding-block: 24px 26px; }
 
 /* gauges */
 #gauges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -121,6 +139,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 button.primary { grid-column: 1 / -1; min-height: 58px; font-size: 1.15rem; font-weight: 700; background: var(--accent); color: #07131c; border-color: var(--accent); }
 button.primary.stop { background: transparent; color: var(--danger); border-color: var(--danger); }
 button:disabled { opacity: .45; cursor: not-allowed; }
+button.wide { grid-column: 1 / -1; }
+button.alert { grid-column: 1 / -1; min-height: 58px; font-size: 1.15rem; font-weight: 700; background: var(--warn); color: #1c1300; border-color: var(--warn); }
+button.danger { color: var(--danger); border-color: #7a2a2e; }
 
 /* log */
 #logPanel h2, #settings summary { font-size: .95rem; font-weight: 500; color: var(--muted); margin: 0 0 6px; }
@@ -150,6 +171,7 @@ select { font: inherit; color: var(--text); background: var(--bg); border: 1px s
 .b-head button { min-height: 40px; padding: 4px 14px; font-size: .9rem; }
 #bState { color: var(--accent); font-size: .95rem; }
 #mState { color: var(--warn); font-size: .95rem; }
+#wState { color: var(--muted); font-size: .82rem; overflow-wrap: anywhere; }
 #bLines { display: grid; gap: 4px; font-size: .95rem; }
 #bLines div { display: flex; gap: 8px; }
 #bLines b { flex: none; min-width: 3.4em; color: var(--muted); font-weight: 500; }
@@ -170,9 +192,14 @@ footer .ver a { color: var(--accent); }
 <div class="flash" aria-hidden="true"></div>
 <div class="wrap">
   <header>
-    <div class="brand">Car Buddy<small>疲勞守護</small></div>
+    <a class="brand" href="./" aria-label="Car Buddy 疲勞守護"><span class="logo">Car Buddy</span><small>疲勞守護</small></a>
     <div class="engine" id="engine">—</div>
   </header>
+  <nav class="nav" aria-label="說明頁面" title="呢啲頁面會喺新分頁打開，請喺停車後先睇">
+    <a href="guide.html" target="_blank" rel="noopener">使用說明</a>
+    <a href="report.html" target="_blank" rel="noopener">駕駛偵測報告</a>
+    <a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>
+  </nav>
 
   <div id="err" role="alert"></div>
 
@@ -183,7 +210,7 @@ footer .ver a { color: var(--accent); }
       <p id="stSub">固定好手機，鏡頭望住你，按「開始偵測」。</p>
     </section>
 
-    <section id="cam" class="off">
+    <section id="cam">
       <video id="video" playsinline muted autoplay></video>
       <canvas id="overlay"></canvas>
       <div id="camMsg">鏡頭未開啟</div>
@@ -212,8 +239,10 @@ footer .ver a { color: var(--accent); }
 
     <section id="controls">
       <button id="btnStart" class="primary" type="button">開始偵測</button>
+      <button id="btnMusicPause" class="alert" type="button" hidden>暫停音樂</button>
       <button id="btnCal" type="button" disabled>重新校準</button>
       <button id="btnTest" type="button">測試警報</button>
+      <button id="btnCam" class="wide" type="button">隱藏鏡頭畫面</button>
     </section>
 
     <section id="buddy" aria-live="polite">
@@ -222,12 +251,13 @@ footer .ver a { color: var(--accent); }
         <div class="btns">
           <button id="btnMusic" type="button">播歌</button>
           <button id="btnVoiceTest" type="button">測試語音</button>
-          <button id="btnBuddyTest" type="button">測試對話</button>
+          <button id="btnBuddyTest" type="button">同 Buddy 傾偈</button>
           <button id="btnBuddyStop" type="button" hidden>停止傾偈</button>
         </div>
       </div>
       <div id="bState">待命</div>
       <div id="mState" hidden></div>
+      <div id="wState" hidden></div>
       <div id="bLines"></div>
       <p class="hint">聽唔到 Buddy 講嘢？去手機「文字轉語音」設定，首選引擎揀 Google 文字轉語音，並安裝粵語或中文語音資料。<a href="intent:#Intent;action=com.android.settings.TTS_SETTINGS;end">嘗試開啟設定</a></p>
     </section>
@@ -263,7 +293,8 @@ footer .ver a { color: var(--accent); }
           </select>
         </div>
         <label class="check"><input id="voice" type="checkbox">警報時加語音提示</label>
-        <label class="check"><input id="preview" type="checkbox">顯示鏡頭預覽（熄咗都會繼續偵測）</label>
+        <label class="check"><input id="preview" type="checkbox">顯示鏡頭畫面（隱藏後仍然會繼續偵測）</label>
+        <label class="check"><input id="autoHide" type="checkbox">校準完成後自動隱藏鏡頭畫面</label>
         <label class="check"><input id="music" type="checkbox">警報第 2 次起自動播歌「前面有站」</label>
         <div class="row">
           <label for="musicVol">音樂音量</label><output id="oMusicVol">90%</output>
@@ -271,6 +302,8 @@ footer .ver a { color: var(--accent); }
           <p class="hint">警報同 Buddy 講嘢時音樂會自動收細。手機本身嘅媒體音量都要調高。</p>
         </div>
         <label class="check"><input id="chat" type="checkbox">疲倦時自動同我傾偈（Buddy）</label>
+        <label class="check"><input id="wake" type="checkbox">語音喚醒（實驗）：講「Buddy」就開始傾偈</label>
+        <p class="hint">語音喚醒會持續使用咪高峰同語音辨識，可能多啲用電同數據。Android Chrome 每次重新聆聽都可能有提示聲。播歌期間會暫停，按「暫停音樂」後恢復。</p>
         <div class="field">
           <label for="provider">AI 供應商</label>
           <select id="provider">
@@ -294,6 +327,8 @@ footer .ver a { color: var(--accent); }
           <label for="endpoint">API 網址（chat/completions）</label>
           <input id="endpoint" class="txt" type="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="https://.../v1/chat/completions">
         </div>
+        <p class="hint">設定詳情同 API 申請步驟，請睇<a href="guide.html" target="_blank" rel="noopener">使用說明</a>。</p>
+        <button id="btnClear" class="danger" type="button">清除所有本機資料（設定、API key、駕駛報告）</button>
       </div>
     </details>
   </main>
@@ -302,7 +337,8 @@ footer .ver a { color: var(--accent); }
     <p>呢個係輔助提示，唔可以代替休息。覺得疲倦就要停車休息。</p>
     <p>手機要固定穩陣先開始，行車時唔好操作螢幕。鏡頭畫面只喺手機入面處理，唔會上傳。</p>
     <p>開啟 Buddy 傾偈後，你講嘅說話文字會傳送畀你揀嘅 AI 供應商；語音辨識由瀏覽器提供，可能經 Google 伺服器處理。</p>
-    <p class="ver">v1.3.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+    <p><a href="privacy.html" target="_blank" rel="noopener">私隱政策</a>：你嘅樣貌只喺你部手機處理，唔會上傳或儲存喺任何伺服器。</p>
+    <p class="ver">v1.4.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
   </footer>
 </div>
 <noscript>呢個頁面需要 JavaScript。</noscript>
@@ -318,9 +354,9 @@ const $ = (id) => document.getElementById(id);
 const video = $("video"), overlay = $("overlay"), octx = overlay.getContext("2d");
 
 /* ---------- settings ---------- */
-// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded. Bump the footer version on every change.
+// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
 const CFG_KEY = "carbuddy.v2";
-const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90 };
+const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false };
 let cfg = { ...defaults };
 try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch (e) {}
 const saveCfg = () => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} };
@@ -332,6 +368,36 @@ const perclosAlarm = () => 0.25 - (cfg.sens - 5) * 0.015;
 const yawnThreshold = () => 0.55 - (cfg.sens - 5) * 0.03;
 const headThreshold = () => 22 - (cfg.sens - 5) * 1.5;
 
+/* ---------- Trip log: remembers every drive that had warnings, on this phone only ---------- */
+const TRIPS_KEY = "carbuddy.trips.v1";
+let trip = null, autoHid = false;
+function tripBegin() { trip = { id: Date.now(), start: Date.now(), end: Date.now(), ev: [], maxClosed: 0, peakPerclos: 0 }; }
+function tripEvent(k, x) { if (!trip) return; trip.ev.push({ t: Date.now(), k, x: x || "" }); tripSave(); }
+function tripSave() {
+  if (!trip) return false;
+  trip.end = Date.now();
+  if (!trip.ev.some((e) => e.k === "alarm" || e.k === "warn")) return false; // only drives that had a warning are kept
+  try {
+    const arr = JSON.parse(localStorage.getItem(TRIPS_KEY) || "[]").filter((x) => x.id !== trip.id);
+    arr.unshift(trip);
+    localStorage.setItem(TRIPS_KEY, JSON.stringify(arr.slice(0, 60)));
+    return true;
+  } catch (e) { return false; }
+}
+function tripEnd() { const saved = tripSave(); trip = null; return saved; }
+setInterval(() => { if (trip) tripSave(); }, 20000);
+addEventListener("pagehide", () => { if (trip) tripSave(); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && trip) tripSave(); });
+
+function applyPreview() {
+  const show = cfg.preview;
+  $("cam").classList.toggle("mini", !show);
+  document.body.classList.toggle("cam-off", !show);
+  $("btnCam").textContent = show ? "隱藏鏡頭畫面" : "顯示鏡頭畫面";
+  $("preview").checked = show;
+  if (!show) octx.clearRect(0, 0, overlay.width, overlay.height);
+}
+
 function bindSettings() {
   $("sens").value = cfg.sens; $("closedSec").value = cfg.closedSec; $("vol").value = cfg.vol;
   $("fps").value = String(cfg.fps); $("voice").checked = cfg.voice; $("preview").checked = cfg.preview;
@@ -339,8 +405,7 @@ function bindSettings() {
     $("oSens").textContent = cfg.sens;
     $("oClosed").textContent = Number(cfg.closedSec).toFixed(1) + " 秒";
     $("oVol").textContent = cfg.vol + "%";
-    $("cam").classList.toggle("off", !cfg.preview);
-    $("camMsg").textContent = running ? "預覽已隱藏，偵測繼續運作" : "鏡頭未開啟";
+    applyPreview();
     placeTicks();
   };
   $("sens").oninput = (e) => { cfg.sens = +e.target.value; saveCfg(); paint(); };
@@ -367,6 +432,23 @@ function bindSettings() {
   $("music").checked = cfg.music; $("musicVol").value = cfg.musicVol; $("oMusicVol").textContent = cfg.musicVol + "%";
   $("music").onchange = (e) => { cfg.music = e.target.checked; saveCfg(); };
   $("musicVol").oninput = (e) => { cfg.musicVol = +e.target.value; $("oMusicVol").textContent = cfg.musicVol + "%"; saveCfg(); };
+  $("autoHide").checked = cfg.autoHide; $("wake").checked = cfg.wake;
+  $("autoHide").onchange = (e) => { cfg.autoHide = e.target.checked; saveCfg(); };
+  $("wake").onchange = async (e) => { cfg.wake = e.target.checked; saveCfg(); if (cfg.wake) await primeMic(); else wakeStop(); };
+  $("btnCam").onclick = () => { cfg.preview = !cfg.preview; saveCfg(); applyPreview(); };
+  let clearArmed = 0;
+  $("btnClear").onclick = () => {
+    const now = Date.now();
+    if (now - clearArmed > 6000) {
+      clearArmed = now;
+      $("btnClear").textContent = "再按一次確認清除";
+      setTimeout(() => { $("btnClear").textContent = "清除所有本機資料（設定、API key、駕駛報告）"; }, 6000);
+      return;
+    }
+    trip = null; // don't let the autosave write the log back
+    try { localStorage.removeItem(CFG_KEY); localStorage.removeItem(TRIPS_KEY); } catch (e) {}
+    location.reload();
+  };
   chatPaint();
   paint();
   bindSettings.paint = paint;
@@ -464,7 +546,7 @@ function newState() {
     yawnSince: 0, yawnLatched: false, yawns: 0, yawnTimes: [], yawnWarnUntil: 0,
     headSince: 0, headDur: 0, headDev: 0,
     noFaceSince: 0, lastNoFaceChime: 0,
-    alarmOn: false, alarmStart: 0, lastDangerAt: 0, muteUntil: 0, alarms: 0, fatigueLevel: 0,
+    alarmOn: false, alarmStart: 0, lastDangerAt: 0, muteUntil: 0, alarms: 0, fatigueLevel: 0, lastWarnLevel: 0, lastWarnAt: -1e9,
     level: "idle", msg: "", startAt: 0, events: [],
   };
 }
@@ -542,10 +624,11 @@ async function start() {
   $("cam").classList.add("live");
   lockScreen();
   st = newState(); st.startAt = performance.now(); b.alarmSeen = 0; m.lastAlarmCount = 0;
+  tripBegin();
   running = true;
   beginCalibration();
   $("btnStart").disabled = false;
-  $("btnStart").textContent = "停止";
+  $("btnStart").textContent = "停用偵測";
   $("btnStart").classList.add("stop");
   $("btnCal").disabled = false;
   $("engine").textContent = delegateName;
@@ -558,6 +641,7 @@ function stop() {
   running = false;
   cancelAnimationFrame(rafId);
   buddyAbort();
+  wakeStop();
   musicStop();
   stopAlarm();
   if (stream) stream.getTracks().forEach((t) => t.stop());
@@ -566,8 +650,10 @@ function stop() {
   wakeLock = null;
   $("cam").classList.remove("live");
   octx.clearRect(0, 0, overlay.width, overlay.height);
+  const saved = tripEnd();
+  if (autoHid) { autoHid = false; cfg.preview = true; saveCfg(); applyPreview(); }
   const mins = Math.max(0, Math.round((performance.now() - st.startAt) / 60000));
-  setPanel("idle", "已停止", `今次偵測 ${mins} 分鐘，警報 ${st.alarms} 次，哈欠 ${st.yawns} 次。`);
+  setPanel("idle", "已停用", `今次偵測 ${mins} 分鐘，警報 ${st.alarms} 次，哈欠 ${st.yawns} 次。${saved ? "已記錄到「駕駛偵測報告」。" : ""}`);
   $("btnStart").textContent = "開始偵測";
   $("btnStart").classList.remove("stop");
   $("btnCal").disabled = true;
@@ -624,6 +710,7 @@ function calibrate(now) {
     st.phase = "monitoring"; st.level = 0; st.msg = "";
     log(`校準完成（睜眼 ${ear.toFixed(2)}）`);
     chime();
+    if (cfg.autoHide && cfg.preview) { autoHid = true; cfg.preview = false; saveCfg(); applyPreview(); log("鏡頭畫面已自動隱藏，偵測繼續"); }
   }
 }
 
@@ -685,6 +772,12 @@ function monitor(now) {
   }
 
   st.fatigueLevel = level;
+  if (trip) {
+    trip.maxClosed = Math.max(trip.maxClosed, st.closedDur);
+    trip.peakPerclos = Math.max(trip.peakPerclos, st.perclosValid ? st.perclos : 0);
+  }
+  if (level === 1 && st.lastWarnLevel !== 1 && now - st.lastWarnAt > 30000) { st.lastWarnAt = now; tripEvent("warn", msg); }
+  st.lastWarnLevel = level;
 
   // alarm control
   if (danger) {
@@ -692,6 +785,7 @@ function monitor(now) {
     if (!st.alarmOn && now > st.muteUntil) {
       st.alarmOn = true; st.alarmStart = now; st.alarms++;
       log(closedDanger ? "警報：長時間閉眼" : headDanger ? "警報：頭部低垂" : "警報：閉眼比例高");
+      tripEvent("alarm", closedDanger ? "長時間閉眼" : headDanger ? "頭部低垂" : "閉眼比例高");
       buddyAbort(true); // an alarm always cuts the chat, and Buddy picks the talk up again once the alarm is over
       startAlarm();
       setTimeout(() => { if (st.alarmOn) speak("喂！醒呀，醒呀！你可能開始中緊眼瞓喇，請停在安全地方休息。"); }, 1300);
@@ -711,6 +805,7 @@ function onYawn(now) {
   st.yawnTimes = st.yawnTimes.filter((t) => now - t < 600000);
   st.yawnWarnUntil = now + 20000;
   log(st.yawnTimes.length >= 3 ? `打哈欠（10 分鐘內第 ${st.yawnTimes.length} 次）` : "打哈欠");
+  tripEvent("yawn", st.yawnTimes.length >= 3 ? `10 分鐘內第 ${st.yawnTimes.length} 次` : "");
   chime();
 }
 
@@ -763,7 +858,8 @@ const PROVIDERS = {
   custom: { url: "", model: "", keyUrl: "" },
 };
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const b = { on: false, token: 0, turns: 0, silent: 0, hist: [], lastEnd: -1e9, alarmSeen: 0, startedAt: 0, fatSince: 0, calmSince: 0, cancel: null, failed: false };
+const b = { on: false, token: 0, turns: 0, silent: 0, hist: [], lastEnd: -1e9, alarmSeen: 0, startedAt: 0, fatSince: 0, calmSince: 0, cancel: null, failed: false, reason: "" };
+const MUSIC_RE = /播歌|放歌|放首歌|聽歌|播音樂|放音樂|唱首歌|嚟首歌|來首歌/;
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const OPENERS = [
@@ -771,6 +867,10 @@ const OPENERS = [
   "打咗哈欠喇。同我傾下偈啦，你最近有冇睇啲好睇嘅劇？",
   "精神差咗少少喎。我考考你，十七加廿六等於幾多？",
   "不如傾下偈提提神，你今日食咗啲乜嘢呀？",
+];
+const USER_OPENERS = [
+  "喺度呀！想傾啲乜？",
+  "我聽到喇，有咩事呀？",
 ];
 const ALARM_OPENERS = [
   "你頭先好似瞌眼瞓，唔好硬撐。同我傾下偈提提神，你而家去緊邊度？",
@@ -934,22 +1034,26 @@ function listen() {
 }
 
 async function primeMic() {
-  if (!cfg.chat || !SR || !navigator.mediaDevices) return;
+  if ((!cfg.chat && !cfg.wake) || !SR || !navigator.mediaDevices) return;
   try {
     const s = await navigator.mediaDevices.getUserMedia({ audio: true });
     s.getTracks().forEach((t) => t.stop());
   } catch (e) { addLine("系統", "未有咪高峰權限，Buddy 只會講，聽唔到你回應。"); }
 }
 
-function buddyStart(manual, reason) {
+// reason: "alarm" (after an alarm), "fatigue" (warning signs), "user" (the driver asked for a chat)
+function buddyStart(manual, reason, firstText) {
   if (b.on) return;
+  wakeStop();
+  if (m.playing) musicStop(); // the mic cannot hear over music, so a chat pauses it
   b.on = true; b.turns = 0; b.silent = 0; b.hist = []; b.failed = false; b.calmSince = 0; b.voiceNoted = false;
-  b.alarmSeen = st.alarms; b.startedAt = performance.now();
+  b.alarmSeen = st.alarms; b.startedAt = performance.now(); b.reason = reason || "";
   const token = ++b.token;
   $("btnBuddyStop").hidden = false;
   $("bLines").textContent = "";
-  log(manual ? "Buddy：測試對話" : reason === "alarm" ? "Buddy：警報後主動傾偈" : "Buddy：偵測到疲倦，主動傾偈");
-  buddyRun(token, reason);
+  log(reason === "user" ? "Buddy：司機主動傾偈" : reason === "alarm" ? "Buddy：警報後主動傾偈" : "Buddy：偵測到疲倦，主動傾偈");
+  tripEvent("chat", reason || "fatigue");
+  buddyRun(token, reason, firstText);
 }
 
 function buddyAbort(keepCooldown) {
@@ -967,18 +1071,20 @@ async function closeChat(token, text) {
   if (b.token === token) buddyAbort();
 }
 
-async function buddyRun(token, reason) {
+async function buddyRun(token, reason, firstText) {
   chime();
   await sleep(700);
   let userText = reason === "alarm"
     ? "（系統提示：司機頭先長時間閉眼或者頭低垂，觸發咗警報，而家張開咗眼。請你主動用一兩句話提醒佢唔好硬撐，再問一條輕鬆嘅問題開始傾偈。）"
-    : "（系統提示：請你主動開口，用一兩句話開始同司機傾偈。）";
+    : reason === "user"
+      ? (firstText || "（系統提示：司機主動叫你傾偈。請你用一句輕鬆嘅話回應，問佢想傾啲乜。）")
+      : "（系統提示：請你主動開口，用一兩句話開始同司機傾偈。）";
   while (b.token === token && b.on) {
     setBuddy("思考中…");
     let reply;
     try { reply = await askLLM(userText); }
     catch (e) {
-      reply = b.turns === 0 ? pick(reason === "alarm" ? ALARM_OPENERS : OPENERS) : pick(FOLLOWUPS);
+      reply = b.turns === 0 ? pick(reason === "alarm" ? ALARM_OPENERS : reason === "user" ? USER_OPENERS : OPENERS) : pick(FOLLOWUPS);
       if (!b.failed) { b.failed = true; addLine("系統", "AI 連線失敗，改用內置對話：" + String(e && e.message || e).slice(0, 80)); log("Buddy：AI 連線失敗"); }
     }
     if (b.token !== token) return;
@@ -987,7 +1093,7 @@ async function buddyRun(token, reason) {
     await say(reply);
     if (b.token !== token) return;
     b.turns++;
-    if (b.turns >= 12) { await closeChat(token, "傾咗一陣喇，記得有需要就休息。我喺度。"); return; }
+    if (b.turns >= (reason === "user" ? 40 : 12)) { await closeChat(token, "傾咗一陣喇，記得有需要就休息。我喺度。"); return; }
     await sleep(300);
     setBuddy(SR ? "聽緊你講…" : "等你回應…");
     const heard = await listen();
@@ -1001,7 +1107,7 @@ async function buddyRun(token, reason) {
     b.silent = 0;
     addLine("你", heard);
     const h = heard.trim();
-    if (/播歌|放歌|放首歌|聽歌|播音樂|放音樂|唱首歌|嚟首歌|來首歌/.test(h)) { await closeChat(token, "好，播首歌俾你聽。"); musicPlay("你要求播歌"); return; }
+    if (MUSIC_RE.test(h)) { await closeChat(token, "好，播首歌俾你聽。"); musicPlay("你要求播歌"); return; }
     if (/^停$|唔好傾|唔使傾|夠喇|閉嘴|安靜|stop/i.test(h)) { await closeChat(token, "好，我靜返。需要我就叫我。"); return; }
     userText = h;
   }
@@ -1021,7 +1127,7 @@ function buddyTick(now) {
     else if (!musicMode && b.fatSince && now - b.fatSince > 6000 && now - b.lastEnd > 180000 && !st.alarmOn && now - st.lastDangerAt > 20000 && !talking) buddyStart(false, "fatigue");
   } else {
     b.calmSince = fat ? 0 : (b.calmSince || now);
-    if (b.calmSince && now - b.calmSince > 60000 && now - b.startedAt > 150000 && !st.alarmOn) {
+    if (b.reason !== "user" && b.calmSince && now - b.calmSince > 60000 && now - b.startedAt > 150000 && !st.alarmOn) {
       b.calmSince = 0;
       const t = ++b.token; // retire the running loop first so the mic doesn't hear Buddy's goodbye
       if (b.cancel) { try { b.cancel(); } catch (e) {} b.cancel = null; }
@@ -1034,8 +1140,49 @@ $("btnBuddyTest").onclick = async () => {
   if (b.on) return;
   ensureAudio();
   await primeMic();
-  buddyStart(true);
+  buddyStart(false, "user");
 };
+
+/* ---------- Wake word (experimental): say "Buddy" and Buddy starts talking, no tapping ---------- */
+const w = { rec: null, cool: 0 };
+const WAKE_RE = /buddy|巴迪|巴地|霸迪|柏迪|比迪|拔地|八地|巴啲/i;
+function wakeStop() {
+  if (w.rec) { const r = w.rec; w.rec = null; try { r.abort(); } catch (e) {} }
+  $("wState").hidden = true;
+}
+function wakeStart() {
+  if (!SR || w.rec) return;
+  const rec = new SR();
+  rec.lang = "zh-HK"; rec.continuous = true; rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.onresult = (e) => {
+    const r = e.results[e.results.length - 1];
+    const text = ((r && r[0] && r[0].transcript) || "").trim();
+    if (!text) return;
+    $("wState").hidden = false; $("wState").textContent = "聽到：" + text;
+    if (!WAKE_RE.test(text)) return;
+    wakeStop();
+    if (MUSIC_RE.test(text)) { musicPlay("你要求播歌"); return; }
+    const rest = text.replace(WAKE_RE, "").replace(/^[\s，,。.、？?！!喂呀啊嘅]+/, "").trim();
+    ensureAudio();
+    buddyStart(false, "user", rest.length >= 2 ? rest : "");
+  };
+  rec.onerror = (e) => {
+    if (e && (e.error === "not-allowed" || e.error === "service-not-allowed")) {
+      cfg.wake = false; saveCfg(); $("wake").checked = false;
+      addLine("系統", "語音喚醒需要咪高峰權限，已關閉。");
+    }
+  };
+  rec.onend = () => { if (w.rec === rec) w.rec = null; w.cool = performance.now() + 500; };
+  w.rec = rec;
+  try { rec.start(); } catch (e) { w.rec = null; w.cool = performance.now() + 3000; }
+}
+function wakeLoop() {
+  const want = cfg.wake && SR && running && st.phase === "monitoring" && !b.on && !m.playing && !st.alarmOn
+    && !("speechSynthesis" in window && speechSynthesis.speaking);
+  if (want && !w.rec && performance.now() > w.cool) wakeStart();
+  else if (!want && w.rec) wakeStop();
+}
+setInterval(wakeLoop, 500);
 $("btnBuddyStop").onclick = () => { buddyAbort(); log("Buddy：手動停止"); };
 $("btnVoiceTest").onclick = async () => {
   ensureAudio();
@@ -1050,18 +1197,40 @@ idleBuddy();
 
 /* ---------- Music: the driver's own song, played from the same folder as this page ---------- */
 const SONG = { title: "前面有站", url: encodeURIComponent("前面有站.mp3") };
-const m = { el: null, playing: false, stopping: false, vol: 0, startedAt: 0, lastRemind: 0, lastStop: -1e9, lastAlarmCount: 0 };
+const m = { el: null, gain: null, playing: false, stopping: false, paused: false, vol: 0, startedAt: 0, lastRemind: 0, lastStop: -1e9, lastAlarmCount: 0 };
 
 function musicEl() {
   if (!m.el) {
-    m.el = new Audio();
-    m.el.preload = "auto"; m.el.loop = true; m.el.src = SONG.url;
-    m.el.onerror = () => {
+    const el = new Audio();
+    el.preload = "auto"; el.loop = true; el.src = SONG.url;
+    el.onerror = () => {
       addLine("系統", "歌曲載入失敗。請確認「前面有站.mp3」同呢個網頁放喺同一個網站資料夾。");
-      m.playing = false; m.stopping = false; $("mState").hidden = true; $("btnMusic").textContent = "播歌";
+      m.playing = false; m.stopping = false; syncMusicUI();
     };
+    m.el = el;
+    // route through Web Audio so fades and ducking also work on iPhone, where audio.volume cannot be changed
+    try {
+      if (actx) {
+        const src = actx.createMediaElementSource(el);
+        m.gain = actx.createGain(); m.gain.gain.value = 0;
+        src.connect(m.gain); m.gain.connect(actx.destination);
+      }
+    } catch (e) { m.gain = null; }
   }
   return m.el;
+}
+function setMusicVol(v) {
+  if (m.gain) m.gain.gain.value = v;
+  else { try { m.el.volume = v; } catch (e) {} }
+}
+// the pause button only exists while music is playing; the play button only while it is not
+function syncMusicUI() {
+  const on = m.playing && !m.stopping;
+  $("btnMusicPause").hidden = !on;
+  $("btnMusic").hidden = on;
+  $("btnMusic").textContent = m.paused ? "繼續播歌" : "播歌";
+  $("mState").hidden = !on;
+  if (on) $("mState").textContent = "音樂播放中：" + SONG.title;
 }
 // unlock playback inside the Start tap, so the song can start by itself later
 function primeMusic() {
@@ -1075,19 +1244,21 @@ function primeMusic() {
 async function musicPlay(reason) {
   if (m.playing) { m.stopping = false; return; }
   const el = musicEl();
-  m.vol = 0; el.volume = 0; m.stopping = false; el.muted = false;
+  if (actx && actx.state === "suspended") { try { actx.resume(); } catch (e) {} }
+  m.vol = 0; setMusicVol(0); m.stopping = false; el.muted = false;
   try { await el.play(); }
   catch (e) { addLine("系統", "歌曲播放失敗：" + String((e && e.message) || e).slice(0, 80)); return; }
-  m.playing = true; m.startedAt = performance.now(); m.lastRemind = m.startedAt;
-  $("mState").hidden = false; $("mState").textContent = "音樂播放中：" + SONG.title;
-  $("btnMusic").textContent = "停止音樂";
+  m.playing = true; m.paused = false; m.startedAt = performance.now(); m.lastRemind = m.startedAt;
+  syncMusicUI();
   log("音樂：" + (reason || "播放"));
+  tripEvent("music", reason || "");
 }
+// "pause": fades out and keeps the song position; detection and alarms carry on as normal
 function musicStop() {
   if (!m.playing || m.stopping) return;
-  m.stopping = true; m.lastStop = performance.now();
-  $("btnMusic").textContent = "播歌"; $("mState").hidden = true;
-  log("音樂：停止");
+  m.stopping = true; m.paused = true; m.lastStop = performance.now();
+  syncMusicUI();
+  log("音樂：暫停");
 }
 async function buddySayLine(text) { addLine("Buddy", text); await say(text); }
 
@@ -1101,8 +1272,8 @@ function musicLoop() {
     else if (running && st.alarmOn) want = 0;
     else if (speaking) want = Math.min(want, 0.12);
     m.vol = m.vol < want ? Math.min(want, m.vol + 0.03) : Math.max(want, m.vol - 0.12);
-    try { m.el.volume = m.vol; } catch (e) {}
-    if (m.stopping && m.vol <= 0.01) { m.el.pause(); m.playing = false; m.stopping = false; return; }
+    setMusicVol(m.vol);
+    if (m.stopping && m.vol <= 0.01) { m.el.pause(); m.playing = false; m.stopping = false; syncMusicUI(); return; }
     if (!m.stopping) {
       if (now - m.startedAt > 600000) { musicStop(); buddySayLine("音樂播咗十分鐘喇，唔好再硬撐，請停低車休息。"); }
       else if (now - m.lastRemind > 240000) { m.lastRemind = now; buddySayLine("提提你，音樂只係幫你撐一陣，請盡快搵安全地方停車休息。"); }
@@ -1116,7 +1287,9 @@ function musicLoop() {
   }
 }
 setInterval(musicLoop, 100);
-$("btnMusic").onclick = () => { ensureAudio(); if (m.playing) musicStop(); else musicPlay("手動播放"); };
+$("btnMusic").onclick = () => { ensureAudio(); musicPlay("手動播放"); };
+$("btnMusicPause").onclick = () => musicStop();
+syncMusicUI();
 
 /* ---------- wiring ---------- */
 $("btnStart").onclick = () => (running ? stop() : start());

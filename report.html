@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1113">
+<title>駕駛偵測報告 · Car Buddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Racing+Sans+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e1113; --panel: #161a1d; --line: #262d32; --text: #e9edef; --muted: #8c979e; --accent: #8cc7ff;
+  --ok: #3ddc97; --warn: #ffb02e; --danger: #ff5a5f;
+  --ok-bg: #122520; --ok-line: #1f4a3b; --warn-bg: #2a2110; --warn-line: #5e4616; --danger-bg: #3b1518; --danger-line: #7a2a2e;
+  --f-body: "Noto Sans TC", system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-num: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text); font-family: var(--f-body); font-size: 16px; line-height: 1.75;
+  padding-block: max(14px, env(safe-area-inset-top, 0px)) max(28px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+a { color: var(--accent); }
+header.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.brand { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: wrap; text-decoration: none; color: inherit; }
+.brand .logo {
+  font-family: "Racing Sans One", Impact, "Arial Black", sans-serif; font-size: 1.9rem; line-height: 1; letter-spacing: .03em; text-transform: uppercase;
+  background: linear-gradient(100deg, #8cc7ff 0%, #c7e3ff 38%, #ffcf6b 72%, #ff6b6f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(140, 199, 255, .35)); padding-right: .08em; transform: skewX(-4deg);
+}
+.brand small { font-weight: 500; color: var(--muted); font-size: .85rem; letter-spacing: .06em; }
+.back { font-size: .92rem; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: clamp(1.7rem, 6vw, 2.3rem); line-height: 1.25; margin: .4em 0 .3em; text-wrap: balance; }
+h2 { font-size: 1.35rem; line-height: 1.35; margin: 2.2em 0 .4em; padding-top: 1em; border-top: 1px solid var(--line); scroll-margin-top: 12px; text-wrap: balance; }
+h3 { font-size: 1.08rem; margin: 1.6em 0 .2em; }
+p { margin: .6em 0; }
+ul, ol { padding-left: 1.3em; margin: .5em 0; }
+li { margin: .3em 0; }
+.lead { color: var(--muted); font-size: 1.02rem; }
+.meta { color: var(--muted); font-size: .88rem; }
+.toc { display: grid; gap: 2px 18px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin: 1.2em 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); list-style: none; }
+.toc li { margin: 0; }
+.toc a { text-decoration: none; display: block; padding: 3px 0; }
+.toc a:hover { text-decoration: underline; }
+code, kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .86em; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; margin: .8em 0; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; min-width: 540px; font-size: .92rem; line-height: 1.55; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; background: var(--panel); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; font-size: 1.05rem; letter-spacing: .03em; }
+.callout { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 10px 16px; margin: 1.1em 0; }
+.callout p { margin: .35em 0; }
+.callout.ok { background: var(--ok-bg); border-color: var(--ok-line); }
+.callout.warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.callout.danger { background: var(--danger-bg); border-color: var(--danger-line); }
+.steps { counter-reset: s; list-style: none; padding: 0; }
+.steps li { counter-increment: s; position: relative; padding-left: 2.4em; margin: .8em 0; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: .12em; width: 1.7em; height: 1.7em; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); font-family: var(--f-num); font-size: 1.05rem; line-height: 1.55em; text-align: center; }
+button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 44px; padding: 8px 16px; cursor: pointer; }
+button:hover { border-color: #3a444b; }
+button.danger { color: var(--danger); border-color: var(--danger-line); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+footer { margin-top: 3em; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; line-height: 1.7; }
+footer p { margin: .3em 0; }
+footer nav { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98rem; margin-top: .8em; }
+
+.stats { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin: 1.2em 0; }
+.stat { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 10px 14px; }
+.stat b { display: block; font-family: var(--f-num); font-size: 2rem; line-height: 1.1; font-weight: 600; letter-spacing: .02em; }
+.stat span { color: var(--muted); font-size: .85rem; }
+.trip { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; margin: 12px 0; }
+.trip > summary { cursor: pointer; list-style: none; padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.trip > summary::-webkit-details-marker { display: none; }
+.trip > summary::before { content: "▸"; color: var(--muted); }
+.trip[open] > summary::before { content: "▾"; }
+.trip .when { font-weight: 500; }
+.trip .sub { color: var(--muted); font-size: .88rem; }
+.badge { font-size: .8rem; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); }
+.badge.alarm { color: var(--danger); border-color: var(--danger-line); background: var(--danger-bg); }
+.badge.warn { color: var(--warn); border-color: var(--warn-line); background: var(--warn-bg); }
+.trip .body { padding: 0 16px 14px; border-top: 1px solid var(--line); }
+.tl { list-style: none; padding: 0; margin: .8em 0; }
+.tl li { display: grid; grid-template-columns: 7em 5.5em 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: .93rem; }
+.tl li:last-child { border-bottom: 0; }
+.tl .t { font-family: var(--f-num); font-size: 1.05rem; color: var(--muted); }
+.tl .k.alarm { color: var(--danger); } .tl .k.warn { color: var(--warn); } .tl .k.yawn { color: var(--accent); } .tl .k.chat, .tl .k.music { color: var(--ok); }
+.bar { display: flex; align-items: end; gap: 3px; height: 70px; margin: .6em 0 .2em; }
+.bar i { flex: 1; background: var(--danger); min-height: 2px; border-radius: 2px 2px 0 0; opacity: .85; }
+.bar i.z { background: var(--line); opacity: 1; }
+.axis { display: flex; justify-content: space-between; color: var(--muted); font-size: .78rem; font-family: var(--f-num); letter-spacing: .04em; }
+.empty { border: 1px dashed var(--line); border-radius: 8px; padding: 22px 18px; color: var(--muted); text-align: center; margin: 1.2em 0; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.4em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="./" aria-label="Car Buddy 疲勞守護"><span class="logo">Car Buddy</span><small>疲勞守護</small></a>
+  <a class="back" href="./">← 返回 Car Buddy</a>
+</header>
+
+<main>
+<h1>駕駛偵測報告</h1>
+<p class="lead">只記錄曾經發出過警告嘅行程。事後睇返，幫你搵出最易眼瞓嘅時段同情況。</p>
+<p class="meta">記錄只存喺你部手機，從未上傳。最多保留最近 60 程。</p>
+
+<div id="out" aria-live="polite"></div>
+
+<div class="actions">
+  <button id="btnExport" type="button" hidden>匯出記錄（JSON）</button>
+  <button id="btnClear" type="button" class="danger" hidden>清除全部記錄</button>
+</div>
+</main>
+
+<footer>
+  <nav aria-label="頁面">
+    <a href="./">主頁</a>
+    <a href="guide.html">使用說明</a>
+    <a href="report.html">駕駛偵測報告</a>
+    <a href="privacy.html">私隱政策</a>
+  </nav>
+  <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
+  <p class="ver">v1.4.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+</footer>
+</div>
+
+<script>
+(function () {
+  var KEY = "carbuddy.trips.v1";
+  var KIND = { alarm: "危險警報", warn: "中度警告", yawn: "打吹欠", chat: "Buddy 傾偈", music: "播放音樂" };
+  var out = document.getElementById("out");
+  var bExp = document.getElementById("btnExport"), bClr = document.getElementById("btnClear");
+
+  function load() { try { var a = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function hm(ts) { var d = new Date(ts); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function day(ts) { var d = new Date(ts); return d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日"; }
+  function dur(ms) { var m = Math.max(0, Math.round(ms / 60000)); if (m < 60) return m + " 分鐘"; return Math.floor(m / 60) + " 小時 " + (m % 60) + " 分鐘"; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function count(t, k) { return (t.ev || []).filter(function (e) { return e.k === k; }).length; }
+
+  function stat(parent, num, label) { var s = el("div", "stat"); s.appendChild(el("b", null, String(num))); s.appendChild(el("span", null, label)); parent.appendChild(s); }
+
+  function advice(trips) {
+    var alarms = [], mins = [], hours = {};
+    trips.forEach(function (t) {
+      (t.ev || []).forEach(function (e) {
+        if (e.k !== "alarm") return;
+        alarms.push(e); mins.push((e.t - t.start) / 60000);
+        var h = new Date(e.t).getHours(); hours[h] = (hours[h] || 0) + 1;
+      });
+    });
+    var box = el("div", "callout");
+    box.appendChild(el("p", null, "").appendChild(el("strong", null, "由記錄睇到嘅趨勢")).parentNode);
+    if (!alarms.length) {
+      box.appendChild(el("p", null, "記錄入面得中度警告，未有危險警報。繼續保持，疲倦時提早休息。"));
+      return box;
+    }
+    var avg = Math.round(mins.reduce(function (a, b) { return a + b; }, 0) / mins.length);
+    box.appendChild(el("p", null, "危險警報平均出現喺開車後約 " + avg + " 分鐘。建議喺大約 " + Math.max(15, avg - 15) + " 分鐘前就主動停一次車休息。"));
+    var top = Object.keys(hours).sort(function (a, b) { return hours[b] - hours[a]; })[0];
+    box.appendChild(el("p", null, "最常出事嘅時段係 " + pad(+top) + ":00–" + pad(+top) + ":59（共 " + hours[top] + " 次）。呢段時間前後請預留休息，或避免長途。"));
+    var multi = trips.filter(function (t) { return count(t, "alarm") >= 2; }).length;
+    if (multi) box.appendChild(el("p", null, "有 " + multi + " 程出現 2 次或以上危險警報；喺第一次警報後就應該停車，而唔係繼續行。"));
+    box.appendChild(el("p", null, "一般幫助：開車前睡足、避免飯後即刻長途、定時喺休息站落車行動、必要時小睡 15–20 分鐘。咖啡因要約 20–30 分鐘先見效，而且只係短暫。"));
+    return box;
+  }
+
+  function histogram(trips) {
+    var buckets = new Array(12).fill(0); // 12 slots of 10 minutes (0–120+ min)
+    var max = 0;
+    trips.forEach(function (t) {
+      (t.ev || []).forEach(function (e) {
+        if (e.k !== "alarm" && e.k !== "warn") return;
+        var i = Math.min(11, Math.floor((e.t - t.start) / 600000));
+        buckets[i]++; if (buckets[i] > max) max = buckets[i];
+      });
+    });
+    var wrap = el("div");
+    wrap.appendChild(el("h2", null, "行車第幾分鐘最易出現警告"));
+    wrap.lastChild.id = "when";
+    var bar = el("div", "bar");
+    bar.setAttribute("role", "img");
+    bar.setAttribute("aria-label", "警告次數按每 10 分鐘分組：" + buckets.join("、"));
+    buckets.forEach(function (n) {
+      var b = el("i", n ? "" : "z");
+      b.style.height = (max ? Math.max(3, Math.round(n / max * 100)) : 3) + "%";
+      b.title = n + " 次";
+      bar.appendChild(b);
+    });
+    wrap.appendChild(bar);
+    var ax = el("div", "axis");
+    ["0", "30", "60", "90", "120+ 分鐘"].forEach(function (s) { ax.appendChild(el("span", null, s)); });
+    wrap.appendChild(ax);
+    return wrap;
+  }
+
+  function render() {
+    out.textContent = "";
+    var trips = load().sort(function (a, b) { return b.start - a.start; });
+    bExp.hidden = bClr.hidden = !trips.length;
+    if (!trips.length) {
+      var e = el("div", "empty");
+      e.appendChild(el("p", null, "暫時未有記錄。"));
+      e.appendChild(el("p", null, "當某一程駕駛中系統發出過警告，就會自動出現喺呢度。冇記錄代表冇警告，係好事。"));
+      out.appendChild(e);
+      return;
+    }
+    var totalAlarm = 0, totalWarn = 0, longest = 0, peak = 0;
+    trips.forEach(function (t) {
+      totalAlarm += count(t, "alarm"); totalWarn += count(t, "warn");
+      longest = Math.max(longest, t.maxClosed || 0); peak = Math.max(peak, t.peakPerclos || 0);
+    });
+    var stats = el("div", "stats");
+    stat(stats, trips.length, "有警告嘅行程");
+    stat(stats, totalAlarm, "危險警報次數");
+    stat(stats, totalWarn, "中度警告次數");
+    stat(stats, (longest / 1000).toFixed(1) + "s", "最長連續閉眼");
+    out.appendChild(stats);
+
+    out.appendChild(advice(trips));
+    out.appendChild(histogram(trips));
+
+    var h = el("h2", null, "逐程記錄"); h.id = "trips"; out.appendChild(h);
+    trips.forEach(function (t, idx) {
+      var d = el("details", "trip"); if (idx === 0) d.open = true;
+      var s = el("summary");
+      s.appendChild(el("span", "when", day(t.start) + " " + hm(t.start) + "–" + hm(t.end)));
+      s.appendChild(el("span", "sub", "歷時 " + dur(t.end - t.start)));
+      var a = count(t, "alarm"), w = count(t, "warn");
+      if (a) s.appendChild(el("span", "badge alarm", "危險警報 ×" + a));
+      if (w) s.appendChild(el("span", "badge warn", "警告 ×" + w));
+      d.appendChild(s);
+      var body = el("div", "body");
+      var info = el("p", "meta", "最長連續閉眼 " + ((t.maxClosed || 0) / 1000).toFixed(1) + " 秒 · PERCLOS 峰值 " + Math.round((t.peakPerclos || 0) * 100) + "%");
+      body.appendChild(info);
+      var ul = el("ul", "tl");
+      (t.ev || []).forEach(function (e) {
+        var li = el("li");
+        li.appendChild(el("span", "t", hm(e.t) + " +" + Math.round((e.t - t.start) / 60000) + "'"));
+        li.appendChild(el("span", "k " + e.k, KIND[e.k] || e.k));
+        li.appendChild(el("span", null, (e.k === "chat" ? "" : e.x) || ""));
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+      d.appendChild(body);
+      out.appendChild(d);
+    });
+  }
+
+  bExp.onclick = function () {
+    var blob = new Blob([JSON.stringify(load(), null, 2)], { type: "application/json" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "car-buddy-trips.json";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  };
+  var armed = false, timer = null;
+  bClr.onclick = function () {
+    if (!armed) { armed = true; bClr.textContent = "再撳一次確認清除"; timer = setTimeout(function () { armed = false; bClr.textContent = "清除全部記錄"; }, 4000); return; }
+    clearTimeout(timer); armed = false; bClr.textContent = "清除全部記錄";
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    render();
+  };
+  render();
+})();
+</script>
+
+</body>
+</html>
