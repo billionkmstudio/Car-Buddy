@@ -180,7 +180,7 @@ details.more > summary { cursor: pointer; padding: 10px 0; color: var(--accent);
     <a href="privacy.html">私隱政策</a>
   </nav>
   <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
-  <p class="ver">v1.6.1 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+  <p class="ver">v1.6.2 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
 </footer>
 </div>
 
@@ -190,7 +190,7 @@ details.more > summary { cursor: pointer; padding: 10px 0; color: var(--accent);
   const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", sttKey: "", fs2: false };
   const PROVIDERS = {
   groq: { url: "https://api.groq.com/openai/v1/chat/completions", model: "openai/gpt-oss-120b", keyUrl: "https://console.groq.com/keys" },
-  gemini: { url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", model: "gemini-2.5-flash", keyUrl: "https://aistudio.google.com/apikey" },
+  gemini: { url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", model: "", keyUrl: "https://aistudio.google.com/apikey" },
   openrouter: { url: "https://openrouter.ai/api/v1/chat/completions", model: "meta-llama/llama-3.3-70b-instruct:free", keyUrl: "https://openrouter.ai/keys" },
   mistral: { url: "https://api.mistral.ai/v1/chat/completions", model: "mistral-small-latest", keyUrl: "https://console.mistral.ai/api-keys" },
   custom: { url: "", model: "", keyUrl: "" },
@@ -231,6 +231,24 @@ function wavFrom(chunks, rate) {
   new Int16Array(buf, 44).set(pcm);
   return new Blob([buf], { type: "audio/wav" });
 }
+let geminiCache = null;
+// asks Google which Gemini "flash" models this key can use now, newest stable first (old models get retired, so nothing is hard-coded)
+async function geminiRank(key) {
+  if (geminiCache && geminiCache.key === key && Date.now() - geminiCache.t < 3600000) return geminiCache.list;
+  let list = [];
+  try {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/models", { headers: { Authorization: "Bearer " + key } });
+    if (r.ok) {
+      const j = await r.json();
+      list = (j.data || j.models || []).map((m) => String(m.id || m.name || "").replace(/^models\//, ""))
+        .map((id) => { const mm = /^gemini-(\d+(?:\.\d+)?)-flash(-lite)?$/.exec(id); return mm ? { id, v: parseFloat(mm[1]), lite: !!mm[2] } : null; })
+        .filter(Boolean).sort((a, z) => (a.lite - z.lite) || (z.v - a.v)).map((x) => x.id);
+    }
+  } catch (e) {}
+  if (!list.length) list = ["gemini-flash-latest"];
+  geminiCache = { key, list, t: Date.now() };
+  return list;
+}
 function blobB64(blob) {
   return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = () => rej(new Error("讀取錄音失敗")); fr.readAsDataURL(blob); });
 }
@@ -256,17 +274,17 @@ async function transcribe(blob, eng) {
   }
   const data = await blobB64(blob);
   let lastErr = "";
-  for (const model of ["gemini-2.5-flash", "gemini-2.0-flash"]) {
+  for (const model of (await geminiRank(eng.key)).slice(0, 4)) {
     const body = {
       contents: [{ parts: [
         { text: "請逐字轉寫呢段錄音（香港廣東話，用繁體中文書寫）。只輸出轉寫出嚟嘅文字，唔好加任何解釋。如果冇人講嘢或者完全聽唔清，只輸出 EMPTY。" },
         { inline_data: { mime_type: "audio/wav", data } },
       ] }],
-      generationConfig: { temperature: 0, maxOutputTokens: 200, ...(model.includes("2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
+      generationConfig: { temperature: 0, maxOutputTokens: 1024, ...(model.includes("2.5") ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
     };
     const r = await postTimed("https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent",
       { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": eng.key }, body: JSON.stringify(body) }, 15000);
-    if (r.status === 404) { lastErr = "404"; continue; }
+    if (r.status === 404 || r.status === 503 || r.status === 429) { lastErr = String(r.status); continue; }
     if (!r.ok) throw new Error("Gemini 辨識 " + r.status + " " + (await r.text()).slice(0, 80));
     const j = await r.json();
     const t = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts || []).map((x) => x.text || "").join("")).trim();
@@ -282,7 +300,7 @@ async function transcribe(blob, eng) {
     $("oVol").textContent = cfg.vol + "%";
     $("oMusicVol").textContent = cfg.musicVol + "%";
     var p = PROVIDERS[cfg.provider] || PROVIDERS.custom;
-    $("model").placeholder = p.model || "模型名稱";
+    $("model").placeholder = cfg.provider === "gemini" ? "留空 = 自動揀最新可用模型" : (p.model || "模型名稱");
     $("endpointRow").hidden = cfg.provider !== "custom";
     $("keyLink").hidden = !p.keyUrl; if (p.keyUrl) $("keyLink").href = p.keyUrl;
     var eng = sttEngine(); $("sttKeyRow").hidden = !(eng && cfg.provider !== eng.kind);
@@ -325,21 +343,33 @@ async function transcribe(blob, eng) {
 
   $("tAI").onclick = async function () {
     var key = (cfg.apiKey || "").trim(), p = PROVIDERS[cfg.provider] || PROVIDERS.custom;
-    var url = cfg.provider === "custom" ? cfg.endpoint : p.url, model = (cfg.model || "").trim() || p.model;
+    var url = cfg.provider === "custom" ? cfg.endpoint : p.url, typed = (cfg.model || "").trim();
     if (!key) return out("未填 API key。", "bad");
-    if (!url || !model) return out("未設定 API 網址或模型。", "bad");
-    out("測試緊 " + model + " …");
-    var t0 = Date.now();
-    try {
-      var body = { model: model, messages: [{ role: "system", content: "你係 Car Buddy，用香港廣東話回答，一句話。" }, { role: "user", content: "我而家好攰，點算？" }], max_tokens: 300, temperature: 0.8 };
-      if (cfg.provider === "groq" && /gpt-oss/.test(model)) body.reasoning_effort = "low";
-      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 15000);
-      var r = await fetch(url, { method: "POST", signal: ctl.signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + key }, body: JSON.stringify(body) });
-      clearTimeout(to);
-      if (!r.ok) return out("失敗：" + r.status + " " + (await r.text()).slice(0, 160) + (r.status === 503 || r.status === 429 ? "\n（服務暫時太多人用，等一陣再試；Buddy 傾偈時會自動轉用其他模型。）" : r.status === 404 ? "\n（模型可能已停用：清空「進階」入面嘅模型名稱再試。）" : r.status === 401 || r.status === 403 ? "\n（API key 可能貼錯或者過期。）" : ""), "bad");
-      var j = await r.json(), t = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
-      out("成功（" + ((Date.now() - t0) / 1000).toFixed(1) + " 秒）：\n" + (t || "（冇內容）"), t ? "ok" : "bad");
-    } catch (e) { out("連線失敗：" + (e && e.name === "AbortError" ? "逾時" : e && e.message || e), "bad"); }
+    if (!url) return out("未設定 API 網址。", "bad");
+    out("搵緊可用模型…");
+    var cands = typed ? [typed] : cfg.provider === "gemini" ? (await geminiRank(key)).slice(0, 4) : [p.model];
+    if (!cands[0]) return out("未設定模型。", "bad");
+    var lastErr = "";
+    for (var n = 0; n < cands.length; n++) {
+      var model = cands[n], t0 = Date.now();
+      out("測試緊 " + model + " …");
+      try {
+        var body = { model: model, messages: [{ role: "system", content: "你係 Car Buddy，用香港廣東話回答，一句話。" }, { role: "user", content: "我而家好攰，點算？" }], max_tokens: 800, temperature: 0.8 };
+        if (cfg.provider === "groq" && /gpt-oss/.test(model)) body.reasoning_effort = "low";
+        if (cfg.provider === "gemini") body.reasoning_effort = "low";
+        var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 15000);
+        var r = await fetch(url, { method: "POST", signal: ctl.signal, headers: { "Content-Type": "application/json", Authorization: "Bearer " + key }, body: JSON.stringify(body) });
+        clearTimeout(to);
+        if (!r.ok) {
+          lastErr = model + "：" + r.status + " " + (await r.text()).slice(0, 140);
+          if (!typed && (r.status === 404 || r.status === 503 || r.status === 429 || r.status === 400)) continue;
+          return out("失敗：" + lastErr + (r.status === 401 || r.status === 403 ? "\n（API key 可能貼錯或者過期。）" : r.status === 404 ? "\n（你填咗模型名稱，可能已停用：清空佢，等系統自動揀。）" : ""), "bad");
+        }
+        var j = await r.json(), t = j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+        return out("成功，用咗 " + model + "（" + ((Date.now() - t0) / 1000).toFixed(1) + " 秒）：\n" + (t || "（冇內容）"), t ? "ok" : "bad");
+      } catch (e) { lastErr = model + "：" + (e && e.name === "AbortError" ? "逾時" : e && e.message || e); }
+    }
+    out("失敗：" + lastErr + (cands.length > 1 ? "\n（已試過 " + cands.length + " 個模型。）" : ""), "bad");
   };
 
   var voices = [];
