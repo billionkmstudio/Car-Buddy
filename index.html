@@ -242,6 +242,7 @@ footer .ver a { color: var(--accent); }
 
     <section id="controls">
       <button id="btnStart" class="primary" type="button">開始偵測</button>
+      <button id="btnRest" class="alert" type="button" hidden>搵最近休息站（停好車先撳）</button>
       <button id="btnMusicPause" class="alert" type="button" hidden>暫停音樂</button>
       <button id="btnCal" type="button" disabled>重新校準</button>
       <button id="btnTest" type="button">測試警報</button>
@@ -283,7 +284,7 @@ footer .ver a { color: var(--accent); }
       <a href="report.html">駕駛偵測報告</a>
       <a href="privacy.html">私隱政策</a>
     </nav>
-    <p class="ver">v1.6.2 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+    <p class="ver">v1.7.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
   </footer>
 </div>
 <noscript>呢個頁面需要 JavaScript。</noscript>
@@ -299,7 +300,7 @@ const $ = (id) => document.getElementById(id);
 const video = $("video"), overlay = $("overlay"), octx = overlay.getContext("2d");
 
 /* ---------- settings ---------- */
-// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.6.2 Gemini model auto-discovery (nothing hard-coded) · 1.6.1 Gemini overload fallback, iPhone mic + TTS fixes, darker brand · 1.6.0 settings moved to settings.html, fullscreen removed, gray brand, iPhone voice-music unlock, Gemini model pick, whisper-large-v3 · 1.5.1 Gemini listening, WAV recording, key not shared across services, fullscreen opt-in button · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
+// Changelog: 1.0 first release · 1.1 louder alarm · 1.2 Buddy voice chat + footer · 1.2.1 Groq model fix + auto model recovery + footer link · 1.2.2 explicit Chinese TTS voice + voice test + voice error reporting · 1.2.3 voice language diagnostics + TTS settings hint · 1.2.4 Buddy starts chatting after an alarm ends · 1.2.5 new alarm voice line · 1.3.0 own song playback (auto from 2nd alarm, voice/button), alarm line reworded · 1.7.0 three-tier alerts (soft spoken reminder → alarm → severe alarm + rest-stop button), yawn detection needs eyes to narrow (filters singing/talking), yawn escalation · 1.6.2 Gemini model auto-discovery (nothing hard-coded) · 1.6.1 Gemini overload fallback, iPhone mic + TTS fixes, darker brand · 1.6.0 settings moved to settings.html, fullscreen removed, gray brand, iPhone voice-music unlock, Gemini model pick, whisper-large-v3 · 1.5.1 Gemini listening, WAV recording, key not shared across services, fullscreen opt-in button · 1.5.0 Groq Whisper listening (Android/iPhone), auto full screen + home-screen app, iPhone music fix · 1.4.3 two-way chat fix (listen retry, live transcript, tap-to-talk, prompt answers the driver first) · 1.4.2 brand font light grey, no plate · 1.4.1 nav links moved to footer, new navy-to-charcoal bold brand font · 1.4.0 pause-music button, hideable camera view, brand font, trip report, privacy + guide pages, driver-initiated chat + wake word. Bump the footer version on every change.
 const CFG_KEY = "carbuddy.v2";
 const defaults = { sens: 5, closedSec: 1.2, vol: 100, fps: 12, voice: true, preview: true, chat: true, provider: "groq", apiKey: "", model: "", endpoint: "", music: true, musicVol: 90, autoHide: false, wake: false, stt: "auto", sttKey: "", fs2: false };
 let cfg = { ...defaults };
@@ -393,10 +394,19 @@ function beep(freq, dur, type = "square", level = 1) {
 }
 const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 function chime() { beep(1320, 0.25, "sine", 0.8); setTimeout(() => beep(1760, 0.3, "sine", 0.8), 260); vibrate([120]); }
-function startAlarm() {
+let alarmSevere = false;
+// severe = tier 3: faster, higher, longer vibration. Calling startAlarm(true) while an alarm is already running upgrades it on the next tick.
+function startAlarm(severe) {
+  alarmSevere = !!severe;
   if (alarmTimer) return;
   // 2–3 kHz carries best on small phone speakers
   const tick = () => {
+    if (alarmSevere) {
+      beep(3000, 0.16); setTimeout(() => beep(2200, 0.16), 180);
+      setTimeout(() => beep(3000, 0.16), 360); setTimeout(() => beep(2200, 0.16), 540);
+      vibrate([400, 100, 400, 100, 400]);
+      return;
+    }
     beep(2400, 0.22); setTimeout(() => beep(1800, 0.22), 250);
     setTimeout(() => beep(2400, 0.22), 500);
     vibrate([220, 80, 220]);
@@ -404,7 +414,23 @@ function startAlarm() {
   tick();
   alarmTimer = setInterval(tick, 900);
 }
-function stopAlarm() { clearInterval(alarmTimer); alarmTimer = 0; vibrate(0); try { speechSynthesis.cancel(); } catch (e) {} }
+function stopAlarm() { clearInterval(alarmTimer); alarmTimer = 0; alarmSevere = false; vibrate(0); try { speechSynthesis.cancel(); } catch (e) {} }
+
+// tier 1: a gentle chime plus one spoken line. Never talks over an alarm, a Buddy chat or the song, and waits 90 s between reminders.
+function softAlert(text, now) {
+  if (st.alarmOn || b.on || m.playing || now - st.lastSoftAt < 90000) return;
+  st.lastSoftAt = now;
+  chime();
+  setTimeout(() => { if (!st.alarmOn && !b.on) speak(text); }, 700);
+}
+const SOFT_LINES = {
+  tired: ["有啲疲倦跡象喎，開少少窗透吓氣，前面見到休息站就入去歇一歇。", "你好似有啲眼瞓，唔好死撐，搵個安全位置停一停。"],
+  eyes: ["你眨眼慢咗，留意吓精神，前面有位就停一停。"],
+  yawn2: ["10 分鐘內打咗兩次哈欠喇，要唔要停喺前面休息吓？"],
+  yawn3: ["你 10 分鐘內打咗三次或以上哈欠，疲勞好明顯，請搵安全位置停車休息一陣。"],
+};
+const pickLine = (k) => SOFT_LINES[k][Math.floor(Math.random() * SOFT_LINES[k].length)];
+const REST_URL = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("rest area OR services OR petrol station near me");
 function speak(text) {
   if (!cfg.voice || !("speechSynthesis" in window)) return;
   try {
@@ -446,7 +472,8 @@ function newState() {
     ear: 0, mar: 0, pitch: null,
     closedSince: 0, openStreak: 0, closedDur: 0,
     win: [], winClosed: 0, perclos: 0, perclosValid: false,
-    yawnSince: 0, yawnLatched: false, yawns: 0, yawnTimes: [], yawnWarnUntil: 0,
+    yawnSince: 0, yawnLatched: false, yawns: 0, yawnTimes: [], yawnWarnUntil: 0, yawnMinEar: 1,
+    alarmTimes: [], severe: false, lastSoftAt: -1e9, restUntil: 0,
     headSince: 0, headDur: 0, headDev: 0,
     noFaceSince: 0, lastNoFaceChime: 0,
     alarmOn: false, alarmStart: 0, lastDangerAt: 0, muteUntil: 0, alarms: 0, fatigueLevel: 0, lastWarnLevel: 0, lastWarnAt: -1e9,
@@ -547,6 +574,7 @@ function stop() {
   wakeStop();
   musicStop();
   stopAlarm();
+  st.restUntil = 0; $("btnRest").hidden = true;
   if (stream) stream.getTracks().forEach((t) => t.stop());
   stream = null; video.srcObject = null;
   try { wakeLock && wakeLock.release(); } catch (e) {}
@@ -567,7 +595,7 @@ function beginCalibration() {
   st.phase = "calibrating"; st.calStart = performance.now();
   st.cal = { ear: [], mar: [], pitch: [] };
   st.closedSince = 0; st.openStreak = 0; st.win = []; st.winClosed = 0; st.headSince = 0; st.yawnSince = 0; st.yawnLatched = false;
-  if (st.alarmOn) { st.alarmOn = false; stopAlarm(); }
+  if (st.alarmOn) { st.alarmOn = false; st.severe = false; stopAlarm(); }
 }
 
 /* ---------- main loop ---------- */
@@ -644,11 +672,15 @@ function monitor(now) {
   st.perclos = st.win.length ? st.winClosed / st.win.length : 0;
   st.perclosValid = st.win.length > 1 && now - st.win[0].t >= 20000;
 
-  // yawn: mouth wide open for a sustained moment
+  // yawn: mouth wide open for a sustained moment AND the eyes squeeze/narrow while it lasts.
+  // Singing along or talking keeps the eyes wide, so it only counts as a yawn after 2.2 s of an extremely wide mouth.
   const yt = yawnThreshold();
   if (st.mar > yt) {
-    if (!st.yawnSince) st.yawnSince = now;
-    if (!st.yawnLatched && now - st.yawnSince >= 1200) { st.yawnLatched = true; onYawn(now); }
+    if (!st.yawnSince) { st.yawnSince = now; st.yawnMinEar = st.ear; }
+    st.yawnMinEar = Math.min(st.yawnMinEar, st.ear);
+    const openFor = now - st.yawnSince;
+    const eyesNarrowed = st.yawnMinEar < st.base.ear * 0.85;
+    if (!st.yawnLatched && ((openFor >= 1200 && eyesNarrowed) || openFor >= 2200)) { st.yawnLatched = true; onYawn(now); }
   } else if (st.mar < yt * 0.7) { st.yawnSince = 0; st.yawnLatched = false; }
 
   // head: deviation from calibrated posture
@@ -669,7 +701,7 @@ function monitor(now) {
       : "最近一分鐘閉眼比例偏高，請盡快安全停車休息。";
   } else if ((st.perclosValid && st.perclos >= perclosWarn()) || now < st.yawnWarnUntil || st.closedDur >= 0.6) {
     level = 1;
-    msg = st.yawnTimes.length >= 3 ? "10 分鐘內打咗 3 次或以上哈欠，建議休息。"
+    msg = st.yawnTimes.length >= 3 && now < st.yawnWarnUntil ? "10 分鐘內打咗 3 次或以上哈欠，建議休息。"
       : now < st.yawnWarnUntil ? "打咗哈欠，留意精神狀態。"
       : "有疲倦跡象，留意休息。";
   }
@@ -679,37 +711,62 @@ function monitor(now) {
     trip.maxClosed = Math.max(trip.maxClosed, st.closedDur);
     trip.peakPerclos = Math.max(trip.peakPerclos, st.perclosValid ? st.perclos : 0);
   }
-  if (level === 1 && st.lastWarnLevel !== 1 && now - st.lastWarnAt > 30000) { st.lastWarnAt = now; tripEvent("warn", msg); }
+  if (level === 1 && st.lastWarnLevel !== 1) {
+    if (now - st.lastWarnAt > 30000) { st.lastWarnAt = now; tripEvent("warn", msg); }
+    // tier 1: soft spoken reminder (yawn clusters have their own, stronger line in onYawn)
+    if (now >= st.yawnWarnUntil) softAlert(pickLine(st.closedDur >= 0.6 ? "eyes" : "tired"), now);
+  }
   st.lastWarnLevel = level;
 
   // alarm control
   if (danger) {
     st.lastDangerAt = now;
     if (!st.alarmOn && now > st.muteUntil) {
-      st.alarmOn = true; st.alarmStart = now; st.alarms++;
+      // tier 3 from the start when this is the 3rd alarm within 15 minutes
+      st.alarmTimes = st.alarmTimes.filter((t) => now - t < 900000);
+      st.alarmTimes.push(now);
+      const severeNow = st.alarmTimes.length >= 3;
+      st.alarmOn = true; st.alarmStart = now; st.alarms++; st.severe = severeNow;
       log(closedDanger ? "警報：長時間閉眼" : headDanger ? "警報：頭部低垂" : "警報：閉眼比例高");
       tripEvent("alarm", closedDanger ? "長時間閉眼" : headDanger ? "頭部低垂" : "閉眼比例高");
       buddyAbort(true); // an alarm always cuts the chat, and Buddy picks the talk up again once the alarm is over
-      startAlarm();
-      setTimeout(() => { if (st.alarmOn) speak("喂！醒呀，醒呀！你可能開始中緊眼瞓喇，請停在安全地方休息。"); }, 1300);
+      startAlarm(severeNow);
+      if (severeNow) escalate(now, "15 分鐘內第 " + st.alarmTimes.length + " 次警報");
+      else setTimeout(() => { if (st.alarmOn && !st.severe) speak("喂！醒呀，醒呀！你可能開始中緊眼瞓喇，請停在安全地方休息。"); }, 1300);
+    }
+    // tier 3 while an alarm is running: eyes closed twice as long as the alarm limit, or danger lasting over 6 s
+    if (st.alarmOn && !st.severe && (st.closedDur >= cfg.closedSec * 2 || now - st.alarmStart > 6000)) {
+      st.severe = true; startAlarm(true);
+      escalate(now, st.closedDur >= cfg.closedSec * 2 ? "閉眼過長" : "危險狀態持續");
     }
     if (perclosDanger && !closedDanger && !headDanger) { st.win = []; st.winClosed = 0; }
   }
   if (st.alarmOn && !closedDanger && !headDanger && now - st.alarmStart > 4000 && now - st.lastDangerAt > 1500) {
-    st.alarmOn = false; stopAlarm();
+    st.alarmOn = false; st.severe = false; stopAlarm();
   }
   st.level = st.alarmOn ? 2 : level;
   st.msg = st.alarmOn && !danger ? "警報完結中，請留意休息。" : msg;
+}
+
+// tier 3: the alarm turns severe. Louder pattern, urgent voice line, and a rest-stop search button for 10 minutes.
+function escalate(now, why) {
+  st.severe = true; st.restUntil = now + 600000;
+  log("嚴重警報：" + why);
+  tripEvent("severe", why);
+  setTimeout(() => { if (st.alarmOn) speak("危險！你而家好危險，請立即喺安全位置停車！前面見到休息站或者停車位就即刻入去。"); }, 500);
 }
 
 function onYawn(now) {
   st.yawns++;
   st.yawnTimes.push(now);
   st.yawnTimes = st.yawnTimes.filter((t) => now - t < 600000);
-  st.yawnWarnUntil = now + 20000;
-  log(st.yawnTimes.length >= 3 ? `打哈欠（10 分鐘內第 ${st.yawnTimes.length} 次）` : "打哈欠");
-  tripEvent("yawn", st.yawnTimes.length >= 3 ? `10 分鐘內第 ${st.yawnTimes.length} 次` : "");
-  chime();
+  const n = st.yawnTimes.length;
+  st.yawnWarnUntil = now + (n >= 3 ? 60000 : 20000);
+  log(n >= 2 ? `打哈欠（10 分鐘內第 ${n} 次）` : "打哈欠");
+  tripEvent("yawn", n >= 2 ? `10 分鐘內第 ${n} 次` : "");
+  // 1st yawn: chime only · 2nd: chime + spoken reminder · 3rd+: stronger spoken advice to stop and rest
+  if (n >= 2) softAlert(pickLine(n >= 3 ? "yawn3" : "yawn2"), now);
+  else chime();
 }
 
 /* ---------- drawing + rendering ---------- */
@@ -735,9 +792,11 @@ function render(now) {
     setPanel("busy", "校準中", face);
   } else if (st.phase === "monitoring") {
     const names = ["清醒", "留意", "危險"];
-    const key = st.level + "|" + st.msg;
-    if (key !== lastLevelKey) { lastLevelKey = key; setPanel(String(st.level), names[st.level], st.msg); }
+    const sev = st.alarmOn && st.severe;
+    const key = st.level + "|" + st.msg + "|" + sev;
+    if (key !== lastLevelKey) { lastLevelKey = key; setPanel(String(st.level), sev ? "嚴重危險" : names[st.level], sev ? "請立即喺安全位置停車休息！" : st.msg); }
   }
+  $("btnRest").hidden = !(running && now < st.restUntil);
   const pc = Math.round(st.perclos * 100);
   $("vPerclos").textContent = st.perclosValid ? pc : "—";
   $("mPerclos").style.width = Math.min(st.perclos / 0.4, 1) * 100 + "%";
@@ -1406,6 +1465,8 @@ function musicLoop() {
 setInterval(musicLoop, 100);
 $("btnMusic").onclick = () => { ensureAudio(); musicPlay("手動播放"); };
 $("btnMusicPause").onclick = () => musicStop();
+// opens the maps app / a new tab; the driver should only press it once parked (opening it pauses camera detection on most phones)
+$("btnRest").onclick = () => { window.open(REST_URL, "_blank", "noopener"); };
 syncMusicUI();
 
 /* ---------- wiring ---------- */
@@ -1417,7 +1478,7 @@ $("btnTest").onclick = () => {
   setTimeout(() => { if (!st.alarmOn) stopAlarm(); }, 2200);
 };
 $("statusPanel").onclick = () => {
-  if (st.alarmOn) { st.alarmOn = false; stopAlarm(); st.muteUntil = performance.now() + 10000; log("手動靜音 10 秒"); }
+  if (st.alarmOn) { st.alarmOn = false; st.severe = false; stopAlarm(); st.muteUntil = performance.now() + 10000; log("手動靜音 10 秒"); }
 };
 bindSettings();
 </script>
