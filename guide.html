@@ -137,9 +137,9 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
 <div class="table-wrap"><table>
   <thead><tr><th>情況</th><th>系統反應</th></tr></thead>
   <tbody>
-    <tr><td>輕微：眨眼變慢、打吹欠</td><td>畫面提示，並記入行程</td></tr>
-    <tr><td>中度：閉眼比例（PERCLOS）升高</td><td>提醒聲，Buddy 可能主動同你傾偈</td></tr>
-    <tr><td>危險：長時間閉眼、頭部低垂、閉眼比例太高</td><td>大聲警報＋震動（Android）＋語音「喂！醒呀，醒呀！…」，並記入報告</td></tr>
+    <tr><td>第 1 級（提醒）：打吹欠、眨眼變慢、閉眼比例開始升高</td><td>柔和提醒聲＋一句語音（例如「要唔要停喺前面休息吓？」）。第 1 次吹欠只響提醒聲，10 分鐘內第 2 次起加語音，第 3 次起明確建議停車休息。語音之間最少隔 90 秒，Buddy 傾偈或播歌時唔會打斷。</td></tr>
+    <tr><td>第 2 級（警報）：長時間閉眼、頭部低垂、閉眼比例太高</td><td>大聲警報＋震動（Android）＋語音「喂！醒呀，醒呀！…」，並記入報告</td></tr>
+    <tr><td>第 3 級（嚴重警報）：15 分鐘內第 3 次警報、閉眼時間超過警報門檻 2 倍、或危險狀態持續超過 6 秒</td><td>更急更高音嘅警報＋長震動＋語音「危險！請立即喺安全位置停車！」，狀態顯示「嚴重危險」，並出現「搵最近休息站」按鈕（停好車先撳；撳咗會離開偵測頁面）。報告會另行記錄「嚴重警報」。</td></tr>
   </tbody>
 </table></div>
 <p>PERCLOS = 最近 60 秒內，眼睛接近閉合所佔嘅時間比例，係業界常用嘅疲倦指標。</p>
@@ -295,7 +295,7 @@ footer .ver { font-family: var(--f-num); letter-spacing: .06em; font-size: .98re
     <a href="privacy.html">私隱政策</a>
   </nav>
   <p>Car Buddy 係輔助提示工具，唔可以代替休息，亦唔係經安全認證嘅設備。覺得疲倦就要停車休息。</p>
-  <p class="ver">v1.6.2 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
+  <p class="ver">v1.7.0 · <a href="https://billionstudio.co.uk" target="_blank" rel="noopener">© 2026 Billion Studio</a> · <a href="mailto:info@billionstudio.app">info@billionstudio.app</a></p>
 </footer>
 </div>
 
